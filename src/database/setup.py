@@ -7,10 +7,12 @@ Bu modül, projenin tüm SQLite şemasını yönetir.
 import sqlite3
 import logging
 import os
+
 from contextlib import contextmanager
 from datetime import datetime
+from src.config.settings import DB_PATH
 
-DB_NAME = os.getenv("DB_PATH", "haber_asistani.db")
+DB_NAME = DB_PATH
 SCHEMA_VERSION = 1 
 
 logging.basicConfig(

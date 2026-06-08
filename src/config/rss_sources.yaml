@@ -1,0 +1,162 @@
+sources:
+
+  # --- SİYASET ---------------------------------------------------------------
+
+  - name: "CNN Türk Siyaset"
+    url: "https://www.cnnturk.com/feed/rss/siyaset/news"
+    category: "siyaset"
+    is_active: true
+
+  - name: "Sözcü Siyaset"
+    url: "https://www.sozcu.com.tr/kategori/gundem/siyaset/feed/"
+    category: "siyaset"
+    is_active: true
+
+  # --- MAGAZİN ---------------------------------------------------------------
+
+  - name: "Hürriyet Magazin"
+    url: "https://www.hurriyet.com.tr/rss/magazin"
+    category: "magazin"
+    is_active: true
+
+  - name: "Milliyet Magazin"
+    url: "https://www.milliyet.com.tr/rss/rssnew/magazinrss.xml"
+    category: "magazin"
+    is_active: true
+
+  - name: "Birsen Altuntaş"
+    url: "https://www.birsenaltuntas.com/feed"
+    category: "magazin"
+    is_active: true
+
+  # --- EKONOMİ ---------------------------------------------------------------
+
+  - name: "NTV Ekonomi"
+    url: "https://www.ntv.com.tr/ekonomi.rss"
+    category: "ekonomi"
+    is_active: true
+
+  # --- SPOR ------------------------------------------------------------------
+
+  - name: "NTV Spor"
+    url: "https://www.ntvspor.net/rss"
+    category: "spor"
+    is_active: true
+
+  - name: "Hürriyet Spor"
+    url: "https://www.hurriyet.com.tr/rss/spor"
+    category: "spor"
+    is_active: true
+
+  # --- BİLİM -----------------------------------------------------------------
+
+  - name: "Evrim Ağacı"
+    url: "https://evrimagaci.org/rss.xml"
+    category: "bilim"
+    is_active: true
+
+  - name: "Bilim Haberleri TR"
+    url: "https://bilimhaberleri.tr/feed"
+    category: "bilim"
+    is_active: true
+
+  # --- TEKNOLOJİ -------------------------------------------------------------
+
+  - name: "Webtekno"
+    url: "https://www.webtekno.com/bilim/feed"
+    category: "teknoloji"
+    is_active: true
+
+  - name: "ShiftDelete"
+    url: "https://shiftdelete.net/feed"
+    category: "teknoloji"
+    is_active: true
+
+  # --- SAĞLIK ----------------------------------------------------------------
+
+  - name: "Sabah Sağlık"
+    url: "https://www.sabah.com.tr/rss/saglik.xml"
+    category: "sağlık"
+    is_active: true
+
+  - name: "NTV Sağlık"
+    url: "https://www.ntv.com.tr/saglik.rss"
+    category: "sağlık"
+    is_active: true
+
+  # --- YEMEK -----------------------------------------------------------------
+
+  - name: "Nefis Yemek Tarifleri"
+    url: "https://www.nefisyemektarifleri.com/feed/"
+    category: "yemek"
+    is_active: true
+
+  - name: "Lezzet"
+    url: "https://www.lezzet.com.tr/rss"
+    category: "yemek"
+    is_active: true
+
+  # --- OTOMOTİV --------------------------------------------------------------
+
+  - name: "Motor1 Türkiye"
+    url: "https://tr.motor1.com/rss/articles/all/"
+    category: "otomotiv"
+    is_active: true
+
+  # --- MÜZİK -----------------------------------------------------------------
+
+  - name: "Number1 Türk FM Haber"
+    url: "https://www.numberone.com.tr/feed/"
+    category: "müzik"
+    is_active: true
+
+  # --- DİZİ-FİLM -------------------------------------------------------------
+
+  - name: "Beyazperde"
+    url: "https://www.beyazperde.com/rss/haberler.xml"
+    category: "dizi_film"
+    is_active: true
+
+  - name: "Diziden"
+    url: "https://diziden.com/feed"
+    category: "dizi_film"
+    is_active: true
+
+  # --- YAPAY ZEKA (AI) -------------------------------------------------------
+
+  - name: "Yapay Zeka TR"
+    url: "https://yapayzeka.ai/feed"
+    category: "ai"
+    is_active: true
+
+  - name: "Log.com.tr AI"
+    url: "https://www.log.com.tr/category/yapay-zeka/feed"
+    category: "ai"
+    is_active: true
+
+  - name: "Teknoblog AI"
+    url: "https://www.teknoblog.com/yapay-zeka/feed/"
+    category: "ai"
+    is_active: true
+
+  # --- SON DAKİKA / ACİL DURUM -----------------------------------------------
+
+  - name: "Anadolu Ajansı Son Dakika"
+    url: "https://www.aa.com.tr/tr/rss/default?cat=guncel"
+    category: "son_dakika"
+    is_active: true
+
+  - name: "TRT Haber Son Dakika"
+    url: "https://www.trthaber.com/sondakika.rss"
+    category: "son_dakika"
+    is_active: true
+
+  - name: "Hürriyet Son Dakika"
+    url: "https://www.hurriyet.com.tr/rss/gundem"
+    category: "son_dakika"
+    is_active: true
+
+  - name: "NTV Gündem"
+    url: "https://www.ntv.com.tr/gundem.rss"
+    category: "son_dakika"
+    is_active: true

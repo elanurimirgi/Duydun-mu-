@@ -1,1 +1,24 @@
-haber_asistani.db
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
+venv/
+.venv/
+
+# Veritabanı (local DB'yi GitHub'a atma)
+data/*.db
+data/*.db-wal
+data/*.db-shm
+
+# n8n local data
+.n8n/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# API ve config dosyaları
+*.key
+*.pem
+config/secrets*
