@@ -16,7 +16,7 @@ data/*.db-shm
 
 # OS
 .DS_Store
-Thumbs.db
+haber_asistani.db
 
 # API ve config dosyaları
 *.key
