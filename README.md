@@ -70,15 +70,6 @@ Günümüzde kullanıcılar onlarca farklı kaynaktan gelen, kişisel ilgi alanl
 
 ---
 
-## 📁 Proje Yapısı
-
-- `src/`: Kaynak kod
-- `data/`: Veritabanı dosyaları
-- `n8n_workflows/`: n8n workflow dosyaları
-- `mcp_server/`: Python FastMCP sunucu ve araçları
-- `tests/`: Test dosyaları
-
----
 
 ## 📱 Uygulamadan Görseller
 
@@ -135,11 +126,6 @@ Danışman: Dr. Öğr. Üyesi Oğuz Emre Kural
 
 ---
 
-## 🏆 Destek ve Tanınırlık
-
-Bu proje, **TÜBİTAK 2209-A Üniversite Öğrencileri Araştırma Projeleri Destekleme Programı** kapsamında resmi destek almaya hak kazanmıştır.
-
----
 
 ## 📄 Lisans
 
