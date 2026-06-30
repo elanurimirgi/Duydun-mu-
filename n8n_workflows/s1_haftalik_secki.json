@@ -1,1 +1,351 @@
-{}
+{
+  "name": "S1.2 - Haftalık Bülten",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                6
+              ],
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "1ae2fb5c-3e97-4491-aadc-25c135649414",
+      "name": "Haftalık Zamanlayıcı"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://localhost:8000/mcp",
+        "tool": {
+          "__rl": true,
+          "value": "get_active_users",
+          "mode": "list",
+          "cachedResultName": "get_active_users"
+        },
+        "parameters": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClient",
+      "typeVersion": 1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "f61f7876-aaa0-41ea-b8a5-189a0edaf86f",
+      "name": "Kullanıcıları Çek"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json.content[0].text;\nconst users = data.data.users;\n\nreturn users.map(user => ({\n  json: {\n    chat_id: user.telegram_chat_id,\n    username: user.username,\n    full_name: user.full_name\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "09a52304-5f1a-4ab5-ab25-843c7eee88ad",
+      "name": "Kullanıcıları Ayır"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://localhost:8000/mcp",
+        "tool": {
+          "__rl": true,
+          "value": "get_user_preferences",
+          "mode": "list",
+          "cachedResultName": "get_user_preferences"
+        },
+        "parameters": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "telegram_chat_id": "={{ $json.chat_id }}"
+          },
+          "matchingColumns": [
+            "telegram_chat_id"
+          ],
+          "schema": [
+            {
+              "id": "telegram_chat_id",
+              "displayName": "Telegram Chat Id",
+              "defaultMatch": false,
+              "required": true,
+              "display": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClient",
+      "typeVersion": 1,
+      "position": [
+        624,
+        0
+      ],
+      "id": "b22d4105-f96c-49a6-aa93-3024c7f335be",
+      "name": "Kullanıcı Profilini Çek"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://localhost:8000/mcp",
+        "tool": {
+          "__rl": true,
+          "value": "get_user_history",
+          "mode": "list",
+          "cachedResultName": "get_user_history"
+        },
+        "parameters": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "telegram_chat_id": "={{ $('Kullanıcıları Ayır').item.json.chat_id }}",
+            "limit": 50
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "telegram_chat_id",
+              "displayName": "Telegram Chat Id",
+              "defaultMatch": false,
+              "required": true,
+              "display": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "limit",
+              "displayName": "Limit",
+              "defaultMatch": false,
+              "required": false,
+              "display": true,
+              "type": "number",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClient",
+      "typeVersion": 1,
+      "position": [
+        0,
+        208
+      ],
+      "id": "e1542de6-21af-4333-9c7b-f4cc79535f44",
+      "name": "Kullanıcı Geçmişini Çek"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Kullanıcıları Ayır').item.json.full_name }} için haftalık kişiselleştirilmiş bülten hazırla.",
+        "options": {
+          "systemMessage": "=Sen kişiselleştirilmiş bir haber asistanısın. Haftalık özel bülten hazırlıyorsun.\n\n## KULLANICI BİLGİLERİ\nİsim: {{ $('Kullanıcıları Ayır').item.json.full_name }}\nİlgi Alanları (en yüksek ağırlıktan başlayarak):\n{{ JSON.stringify($('Kullanıcı Profilini Çek').item.json.content[0].text.data.preferences) }}\nHaftalık Etkileşim Geçmişi:\n{{ JSON.stringify($('Kullanıcı Geçmişini Çek').item.json.content[0].text.data.history) }}\n\n## ⚠️ KRİTİK KURALLAR\n1. İlgi alanlarından EN YÜKSEK ağırlıklı TAM OLARAK 3 konuyu seç\n2. 3 konuyu BELİRLEDİKTEN SONRA hepsini ALT ALTA yaz, sonra tool çağır\n3. Her konu için search_news SADECE 1 KEZ çağır — toplam 3 tool çağrısı\n4. 3 tool çağrısı bittikten sonra KESİNLİKLE başka tool çağırma\n5. Boş sonuç gelse bile tekrar çağırma, o kategoriyi atla\n6. Bülten bittikten sonra DUR, başka hiçbir şey yazma\n\n## ÇALIŞMA SIRASI\nADIM 1: Tercihlere bak, en yüksek ağırlıklı 3 konuyu zihninde belirle\nADIM 2: search_news(query=konu1, limit=2) çağır → sonucu al\nADIM 3: search_news(query=konu2, limit=2) çağır → sonucu al\nADIM 4: search_news(query=konu3, limit=2) çağır → sonucu al\nADIM 5: Tüm sonuçları FORMAT'a göre düzenle → bülteni yaz → DUR\n\n## FORMAT\n✨ Sizin İçin Seçtik\n👤 [İsim] için özel seçki\n\n[Kategori Emoji] *Kategori Adı 1*\n1️⃣ *Başlık*\nÖzet (1-2 cümle, samimi). 📰 Kaynak\n🔗 [Habere git](URL)\n\n[Kategori Emoji] *Kategori Adı 2*\n1️⃣ *Başlık*\nÖzet (1-2 cümle, samimi). 📰 Kaynak\n🔗 [Habere git](URL)\n\n[Kategori Emoji] *Kategori Adı 3*\n1️⃣ *Başlık*\nÖzet (1-2 cümle, samimi). 📰 Kaynak\n🔗 [Habere git](URL)\n\n## GENEL KURALLAR\n- HER ZAMAN Türkçe yaz, samimi ol\n- Her kategori için maksimum 2 haber göster\n- 3 tool çağrısı bittikten sonra ARTIK TOOL ÇAĞIRMA\n- Bülten hazırlandıktan sonra KESİNLİKLE DUR",
+          "maxIterations": 20
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        240,
+        208
+      ],
+      "id": "544174b6-db2b-4765-b12a-8f5c5fb4a90c",
+      "name": "Haftalık Bülten Hazırla"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://localhost:8000/mcp",
+        "include": "selected",
+        "includeTools": [
+          "search_news"
+        ],
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        480,
+        400
+      ],
+      "id": "550ba97b-d820-4d7f-8793-0a947b4fe7bf",
+      "name": "MCP Client"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Kullanıcıları Ayır').item.json.chat_id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "Markdown"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        592,
+        208
+      ],
+      "id": "78aa960d-2e20-43fc-b169-1ffb144c714c",
+      "name": "Haftalık Bülten Gönder",
+      "webhookId": "c48c267a-43bb-4a0a-9017-d4be8d97dc82",
+      "credentials": {
+        "telegramApi": {
+          "id": "mgOitC3rLxsdGGzS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "deepseek-chat",
+          "mode": "id"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        112,
+        416
+      ],
+      "id": "6c9495b6-e82f-4c1a-81f0-051e67d6e442",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "6vUobGeKL3vrf656",
+          "name": "OpenAi account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Haftalık Zamanlayıcı": {
+      "main": [
+        [
+          {
+            "node": "Kullanıcıları Çek",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Kullanıcıları Çek": {
+      "main": [
+        [
+          {
+            "node": "Kullanıcıları Ayır",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Kullanıcıları Ayır": {
+      "main": [
+        [
+          {
+            "node": "Kullanıcı Profilini Çek",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Kullanıcı Profilini Çek": {
+      "main": [
+        [
+          {
+            "node": "Kullanıcı Geçmişini Çek",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Kullanıcı Geçmişini Çek": {
+      "main": [
+        [
+          {
+            "node": "Haftalık Bülten Hazırla",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Client": {
+      "ai_tool": [
+        [
+          {
+            "node": "Haftalık Bülten Hazırla",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Haftalık Bülten Hazırla": {
+      "main": [
+        [
+          {
+            "node": "Haftalık Bülten Gönder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Haftalık Bülten Hazırla",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "443fda5a-e856-4389-a187-1a01607b6739",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "409666e2685c5dec0ce2ba55916475939b59aaceb7cfc34df0f332c03c131f5a"
+  },
+  "id": "OMOwB7F0qzwO1hmE",
+  "tags": []
+}
