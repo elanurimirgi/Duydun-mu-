@@ -85,20 +85,18 @@ Günümüzde kullanıcılar onlarca farklı kaynaktan gelen, kişisel ilgi alanl
       <sub>12 kategoriden ilgi alanı seçimi</sub><br/><br/>
       <img src="https://github.com/user-attachments/assets/c60c34c6-f989-499e-8360-1473fa2e9080" width="220"/>
     </td>
-  </tr>
-  <tr>
     <td align="center" width="33%">
       <b>3. Günlük Bülten</b><br/>
       <sub>Kişiselleştirilmiş haber özetleri</sub><br/><br/>
       <img src="https://github.com/user-attachments/assets/a925182a-4e94-475e-b936-652e49721c47" width="220"/>
     </td>
+  </tr>
+  <tr>
     <td align="center" width="33%">
       <b>4. Son Dakika</b><br/>
       <sub>Gerçek zamanlı bildirimler</sub><br/><br/>
       <img src="https://github.com/user-attachments/assets/0cba2cab-ef12-410a-967d-14520c50c28d" width="220"/>
     </td>
-  </tr>
-  <tr>
     <td align="center" width="33%">
       <b>5. AI Agent Sohbet</b><br/>
       <sub>Serbest sohbet & web araması</sub><br/><br/>
@@ -124,6 +122,7 @@ Proje, 2 kişilik bir ekip tarafından geliştirilmiştir.
 Danışman: Dr. Öğr. Üyesi Oğuz Emre Kural
 
 ---
+
 
 
 ## 📄 Lisans
