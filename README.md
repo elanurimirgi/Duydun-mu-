@@ -2,7 +2,6 @@
 
 **Duydun mu?**, kullanıcıların bilgi taşması (*information overload*) problemini çözmek amacıyla geliştirilen, Telegram üzerinden çalışan, kullanıcının ilgi alanlarına ve etkileşim geçmişine göre kendini güncelleyen yapay zeka destekli bir kişisel haber asistanıdır.
 
-
 Proje; gereksinim analizinden sistem mimarisi tasarımına, yapay zeka entegrasyonundan kullanıcı davranış analizine kadar uçtan uca ekip sorumluluğuyla geliştirilmiştir.
 
 ---
@@ -71,49 +70,57 @@ Günümüzde kullanıcılar onlarca farklı kaynaktan gelen, kişisel ilgi alanl
 
 ---
 
+## 📁 Proje Yapısı
+
+- `src/`: Kaynak kod
+- `data/`: Veritabanı dosyaları
+- `n8n_workflows/`: n8n workflow dosyaları
+- `mcp_server/`: Python FastMCP sunucu ve araçları
+- `tests/`: Test dosyaları
+
+---
 
 ## 📱 Uygulamadan Görseller
-
 
 ### 1. Ana Menü — Tüm Özellikler Tek Ekranda
 Kullanıcı, günün haberlerinden son dakikaya, ilgi alanı seçiminden profil/istatistiklere kadar tüm işlevlere tek bir menüden erişebiliyor.
 
-![Ana Menü](<img width="720" height="1600" alt="Image" src="https://github.com/user-attachments/assets/d7e37a1d-82a5-4a7f-be7e-ff2244ff2aa8" />)
+![Ana Menü](https://github.com/user-attachments/assets/d7e37a1d-82a5-4a7f-be7e-ff2244ff2aa8)
 
 ---
 
 ### 2. Kişiselleştirme — İlgi Alanı Seçimi
 Kullanıcı 12 farklı kategori arasından istediği kadar seçim yapabiliyor; bu seçimler, sistemin haber filtreleme ve önceliklendirme mantığının temelini oluşturuyor.
 
-![Kişiselleştirme](<img width="720" height="1600" alt="Image" src="https://github.com/user-attachments/assets/c60c34c6-f989-499e-8360-1473fa2e9080" />)
+![Kişiselleştirme](https://github.com/user-attachments/assets/c60c34c6-f989-499e-8360-1473fa2e9080)
 
 ---
 
 ### 3. Günlük Bülten — Kişiselleştirilmiş Haber Akışı
 Sistem, kullanıcının seçtiği kategorilere göre günün öne çıkan haberlerini özetleyerek, kaynak linkleriyle birlikte sunuyor.
 
-![Günlük Bülten](<img width="720" height="1600" alt="Image" src="https://github.com/user-attachments/assets/a925182a-4e94-475e-b936-652e49721c47" />)
+![Günlük Bülten](https://github.com/user-attachments/assets/a925182a-4e94-475e-b936-652e49721c47)
 
 ---
 
 ### 4. Son Dakika — Gerçek Zamanlı Bildirim
 Önemli gelişmeler, kategorilere ayrılmış ve özetlenmiş şekilde anlık olarak kullanıcıya iletiliyor.
 
-![Son Dakika](<img width="720" height="1600" alt="Image" src="https://github.com/user-attachments/assets/0cba2cab-ef12-410a-967d-14520c50c28d" />)
+![Son Dakika](https://github.com/user-attachments/assets/0cba2cab-ef12-410a-967d-14520c50c28d)
 
 ---
 
 ### 5. AI Agent — Serbest Sohbet & Web Araması
 Kullanıcı, menü dışında serbestçe soru sorabiliyor; AI Agent gerçek zamanlı web araması yaparak güncel ve doğru bilgiyle yanıt üretiyor.
 
-![AI Agent Sohbet](<img width="720" height="1600" alt="Image" src="https://github.com/user-attachments/assets/18587ea3-76db-41b8-9265-c0446a78c434" />)
+![AI Agent Sohbet](https://github.com/user-attachments/assets/18587ea3-76db-41b8-9265-c0446a78c434)
 
 ---
 
 ### 6. Profil & Davranışsal Analitik
 Sistem, kullanıcının okuma geçmişini ve etkileşimlerini analiz ederek ilgi profilini sürekli güncelliyor; kullanıcıya kendi etkileşim istatistiklerini de şeffaf şekilde gösteriyor.
 
-![Profil & Analitik](<img width="720" height="1600" alt="Image" src="https://github.com/user-attachments/assets/16bf1401-b2ea-492b-8412-c0f54ea0e1bf" />)
+![Profil & Analitik](https://github.com/user-attachments/assets/16bf1401-b2ea-492b-8412-c0f54ea0e1bf)
 
 ---
 
@@ -128,6 +135,11 @@ Danışman: Dr. Öğr. Üyesi Oğuz Emre Kural
 
 ---
 
+## 🏆 Destek ve Tanınırlık
+
+Bu proje, **TÜBİTAK 2209-A Üniversite Öğrencileri Araştırma Projeleri Destekleme Programı** kapsamında resmi destek almaya hak kazanmıştır.
+
+---
 
 ## 📄 Lisans
 
