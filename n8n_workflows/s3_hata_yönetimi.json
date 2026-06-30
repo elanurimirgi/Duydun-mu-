@@ -1,0 +1,92 @@
+{
+  "name": "Hata Yönetimi",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "a7f56661-dd82-42e9-b708-4cc9bdc9b43b",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "jsCode": "const error = $input.first().json;\nconst nodeName = error.execution?.lastNodeExecuted || '';\n\n// Static data'dan chat_id'yi al\nconst workflowStaticData = $getWorkflowStaticData('global');\nconst chat_id = workflowStaticData.last_chat_id || null;\n\nlet message = '😔 Şu an bu isteği tamamlayamadım.\\n\\nBiraz sonra tekrar dener misin? 🙏';\n\nif (nodeName.includes('Bülten') || nodeName.includes('Haber Özet') || nodeName.includes('Agent')) {\n  message = `😔 Şu an bu habere ulaşamadım.\\n\\n\"Günün haberleri\" yazıp listeyi tekrar al, sonra istediğin haberin numarasını söyle 🙏`;\n}\n\nreturn [{\n  json: {\n    chat_id: chat_id,\n    text: message\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "6f513e26-6291-487e-8f0b-e12fa0b338f6",
+      "name": "Hata Mesajı Hazırla"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "Markdown"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "85247dcf-044d-4a8c-9ebe-7350b9567671",
+      "name": "Hata Mesajı Gönder",
+      "webhookId": "aa16004e-d716-4148-8db6-e406ad487d64",
+      "credentials": {
+        "telegramApi": {
+          "id": "mgOitC3rLxsdGGzS",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Hata Mesajı Hazırla",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hata Mesajı Hazırla": {
+      "main": [
+        [
+          {
+            "node": "Hata Mesajı Gönder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "cce64a0e-fd35-4a9e-89c6-86f4ff3e673e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "409666e2685c5dec0ce2ba55916475939b59aaceb7cfc34df0f332c03c131f5a"
+  },
+  "id": "kjXPE88F4smImefn",
+  "tags": []
+}
