@@ -73,45 +73,44 @@ Günümüzde kullanıcılar onlarca farklı kaynaktan gelen, kişisel ilgi alanl
 
 ## 📱 Uygulamadan Görseller
 
-### 1. Ana Menü — Tüm Özellikler Tek Ekranda
-Kullanıcı, günün haberlerinden son dakikaya, ilgi alanı seçiminden profil/istatistiklere kadar tüm işlevlere tek bir menüden erişebiliyor.
-
-![Ana Menü](https://github.com/user-attachments/assets/d7e37a1d-82a5-4a7f-be7e-ff2244ff2aa8)
-
----
-
-### 2. Kişiselleştirme — İlgi Alanı Seçimi
-Kullanıcı 12 farklı kategori arasından istediği kadar seçim yapabiliyor; bu seçimler, sistemin haber filtreleme ve önceliklendirme mantığının temelini oluşturuyor.
-
-![Kişiselleştirme](https://github.com/user-attachments/assets/c60c34c6-f989-499e-8360-1473fa2e9080)
-
----
-
-### 3. Günlük Bülten — Kişiselleştirilmiş Haber Akışı
-Sistem, kullanıcının seçtiği kategorilere göre günün öne çıkan haberlerini özetleyerek, kaynak linkleriyle birlikte sunuyor.
-
-![Günlük Bülten](https://github.com/user-attachments/assets/a925182a-4e94-475e-b936-652e49721c47)
-
----
-
-### 4. Son Dakika — Gerçek Zamanlı Bildirim
-Önemli gelişmeler, kategorilere ayrılmış ve özetlenmiş şekilde anlık olarak kullanıcıya iletiliyor.
-
-![Son Dakika](https://github.com/user-attachments/assets/0cba2cab-ef12-410a-967d-14520c50c28d)
-
----
-
-### 5. AI Agent — Serbest Sohbet & Web Araması
-Kullanıcı, menü dışında serbestçe soru sorabiliyor; AI Agent gerçek zamanlı web araması yaparak güncel ve doğru bilgiyle yanıt üretiyor.
-
-![AI Agent Sohbet](https://github.com/user-attachments/assets/18587ea3-76db-41b8-9265-c0446a78c434)
-
----
-
-### 6. Profil & Davranışsal Analitik
-Sistem, kullanıcının okuma geçmişini ve etkileşimlerini analiz ederek ilgi profilini sürekli güncelliyor; kullanıcıya kendi etkileşim istatistiklerini de şeffaf şekilde gösteriyor.
-
-![Profil & Analitik](https://github.com/user-attachments/assets/16bf1401-b2ea-492b-8412-c0f54ea0e1bf)
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <b>1. Ana Menü</b><br/>
+      <sub>Tüm özelliklere tek menüden erişim</sub><br/><br/>
+      <img src="https://github.com/user-attachments/assets/d7e37a1d-82a5-4a7f-be7e-ff2244ff2aa8" width="280"/>
+    </td>
+    <td align="center" width="50%">
+      <b>2. Kişiselleştirme</b><br/>
+      <sub>12 kategoriden ilgi alanı seçimi</sub><br/><br/>
+      <img src="https://github.com/user-attachments/assets/c60c34c6-f989-499e-8360-1473fa2e9080" width="280"/>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <b>3. Günlük Bülten</b><br/>
+      <sub>Kişiselleştirilmiş haber özetleri</sub><br/><br/>
+      <img src="https://github.com/user-attachments/assets/a925182a-4e94-475e-b936-652e49721c47" width="280"/>
+    </td>
+    <td align="center" width="50%">
+      <b>4. Son Dakika</b><br/>
+      <sub>Gerçek zamanlı bildirimler</sub><br/><br/>
+      <img src="https://github.com/user-attachments/assets/0cba2cab-ef12-410a-967d-14520c50c28d" width="280"/>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <b>5. AI Agent Sohbet</b><br/>
+      <sub>Serbest sohbet & web araması</sub><br/><br/>
+      <img src="https://github.com/user-attachments/assets/18587ea3-76db-41b8-9265-c0446a78c434" width="280"/>
+    </td>
+    <td align="center" width="50%">
+      <b>6. Profil & Analitik</b><br/>
+      <sub>Davranışsal analiz ve istatistikler</sub><br/><br/>
+      <img src="https://github.com/user-attachments/assets/16bf1401-b2ea-492b-8412-c0f54ea0e1bf" width="280"/>
+    </td>
+  </tr>
+</table>
 
 ---
 
