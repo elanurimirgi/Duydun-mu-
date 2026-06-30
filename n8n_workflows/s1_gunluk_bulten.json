@@ -1,1 +1,370 @@
-{}
+{
+  "name": "S1.1 - Günlük Bülten",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 15,
+              "triggerAtMinute": 35
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "412e3f2f-8a11-40e0-8a4d-be5f0a147488",
+      "name": "Zamanlayıcı"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://localhost:8000/mcp",
+        "tool": {
+          "__rl": true,
+          "value": "fetch_news",
+          "mode": "list",
+          "cachedResultName": "fetch_news"
+        },
+        "parameters": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [
+            "category"
+          ],
+          "schema": [
+            {
+              "id": "category",
+              "displayName": "Category",
+              "defaultMatch": false,
+              "required": false,
+              "display": true,
+              "type": "string",
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClient",
+      "typeVersion": 1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "aba08a9e-c7b5-475b-9cb2-efbef07239de",
+      "name": "Haberleri Çek"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://localhost:8000/mcp",
+        "tool": {
+          "__rl": true,
+          "value": "get_active_users",
+          "mode": "list",
+          "cachedResultName": "get_active_users"
+        },
+        "parameters": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClient",
+      "typeVersion": 1,
+      "position": [
+        448,
+        0
+      ],
+      "id": "0758fa0a-95f8-4c0a-b7e8-908cb648b51a",
+      "name": "Kullanıcıları Çek"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.full_name }} için günlük bülten hazırla.",
+        "options": {
+          "systemMessage": "=Sen bir haber asistanısın. Görevin kullanıcıya kişiselleştirilmiş günlük haber bülteni hazırlamak.\nYAPMAN GEREKENLER:\n1. get_personalized_news(telegram_chat_id={{ $json.chat_id }}, limit_per_category=2) tool'u ile kullanıcıya özel haberleri getir\n2. Gelen haberlerden en önemli 6 tanesini seç\n3. Gelen haberleri aşağıdaki formatta göster, ASLA uydurma haber ekleme\nFORMAT KURALLARI:\n- ###, **, * gibi markdown işaretleri KESİNLİKLE KULLANMA\n- Sadece emoji ve düz metin kullan\n- Her kategoriden sonra — koy\nKATEGORİLER:\n🗳️ Siyaset | 🎭 Magazin | 💰 Ekonomi | ⚽ Spor | 🔬 Bilim | 💻 Teknoloji | 🏥 Sağlık | 🍽️ Yemek | 🚗 Otomotiv | 🎵 Müzik | 🎬 Dizi & Film | 🤖 AI | 🌍 Dünya | 🇹🇷 Türkiye / Gündem\nÇIKTI FORMATI:\n🗞 Günün Öne Çıkan Haberleri\n📅 [Bugünün tarihi]\n[Kategori Emoji] [Kategori Adı]\n1️⃣ Başlık\n📰 Kaynak\n📝 2-3 cümle özet, samimi yorum ekle\n🔗 [Haberi Oku](URL)\n—\nKATİ KURALLAR:\n- Sadece tool'dan gelen haberleri göster, BAŞKA HABERLERİ EKLEME\n- Markdown'da SADECE link formatı serbest: [Haberi Oku](https://...)\n- ASLA ### ** * gibi markdown başlık/bold işaretleri kullanma\n- URL'yi asla boş bırakma, MUTLAKA [Haberi Oku](URL) formatında ver\n- URL parantezlerini ASLA yarım bırakma — açtıysan kapat\n- YANIT SONUNA MUTLAKA EKLE: SELECTED_IDS:[id1,id2,id3,id4,id5,id6]\n- En sona şunu ekle: \"Beğendiğin haber olursa numarasını söyle, detaylı özet geçeyim. Ya da istediğin bir konu hakkında haber aratabilirim! 😊\""
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        256,
+        208
+      ],
+      "id": "2a369035-a333-4465-afbd-b2107490bf7a",
+      "name": "Bülten Hazırla"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://localhost:8000/mcp",
+        "include": "selected",
+        "includeTools": [
+          "get_personalized_news"
+        ],
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        480,
+        336
+      ],
+      "id": "be864d00-7bea-4ed7-9e23-c47c9d417e7d",
+      "name": "MCP Client"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Kullanıcıları Ayır').item.json.chat_id }}",
+        "text": "={{ $('Bülten Hazırla').item.json.output.replace(/SELECTED_IDS:\\[[^\\]]*\\]/g, '').trim() }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "Markdown"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        672,
+        208
+      ],
+      "id": "e7e81e94-c991-40f2-ab30-8422df975263",
+      "name": "Bülten Gönder",
+      "webhookId": "189f5e66-522a-4650-92d7-45b34b409ea1",
+      "credentials": {
+        "telegramApi": {
+          "id": "mgOitC3rLxsdGGzS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "deepseek-chat",
+          "mode": "id"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        208,
+        352
+      ],
+      "id": "7a723f53-38d2-4bb8-8601-f45f59ac7416",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "6vUobGeKL3vrf656",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json.content[0].text;\nconst users = data.data.users;\n\nreturn users.map(user => ({\n  json: {\n    chat_id: user.telegram_chat_id,\n    username: user.username,\n    full_name: user.full_name\n  }\n}));;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        208
+      ],
+      "id": "100d5e84-60a9-47d4-bcd2-248bff7b2847",
+      "name": "Kullanıcıları Ayır"
+    },
+    {
+      "parameters": {
+        "jsCode": "const bulletinItems = $('Bülten Hazırla').all();\nconst userItems = $('Kullanıcıları Ayır').all();\nconst result = [];\n\nfor (let i = 0; i < bulletinItems.length; i++) {\n  const output = bulletinItems[i].json.output || '';\n  const chatId = userItems[i]?.json?.chat_id || '';\n  \n  const match = output.match(/SELECTED_IDS:\\[([^\\]]+)\\]/);\n  if (!match) {\n    result.push({ json: { user_chat_id: chatId, news_list: [] } });\n    continue;\n  }\n  \n  const ids = match[1].split(',').map(id => parseInt(id.trim()));\n  \n  // URL'leri output metninden parse et\n  const urlMatches = [...output.matchAll(/\\[Haberi Oku\\]\\((https?:\\/\\/[^\\)]+)\\)/g)];\n  const urls = urlMatches.map(m => m[1]);\n  \n  // Başlıkları parse et\n  const titleMatches = [...output.matchAll(/\\d️⃣\\s+(.+?)\\n/g)];\n  const titles = titleMatches.map(m => m[1].trim());\n  \n  // Kategori emoji → kategori adı mapping\n  const categoryMap = {\n    '💻': 'teknoloji', '🗳️': 'siyaset', '🎭': 'magazin',\n    '⚽': 'spor', '🔬': 'bilim', '💰': 'ekonomi',\n    '🎬': 'dizi_film', '🍽️': 'yemek', '🌍': 'dunya',\n    '🤖': 'ai', '🏥': 'saglik', '🎵': 'muzik'\n  };\n  \n  const newsList = ids.map((id, index) => ({\n    id: id,\n    title: titles[index] || `Haber ${index + 1}`,\n    category: 'genel',\n    url: urls[index] || ''\n  }));\n  \n  result.push({ json: { user_chat_id: chatId, news_list: newsList } });\n}\n\nreturn result;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        208
+      ],
+      "id": "6331650b-66ea-4c74-8653-8b668b32c2b7",
+      "name": "Haber Listesi Hazırla"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://localhost:8000/mcp",
+        "tool": {
+          "__rl": true,
+          "value": "save_bulletin_news",
+          "mode": "list",
+          "cachedResultName": "save_bulletin_news"
+        },
+        "parameters": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "news_list": "={{ $json.news_list }}",
+            "user_chat_id": "={{ $json.user_chat_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "user_chat_id",
+              "displayName": "User Chat Id",
+              "defaultMatch": false,
+              "required": true,
+              "display": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "news_list",
+              "displayName": "News List",
+              "defaultMatch": false,
+              "required": true,
+              "display": true,
+              "type": "array",
+              "defaultValue": "[\n  null\n]",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClient",
+      "typeVersion": 1,
+      "position": [
+        1088,
+        208
+      ],
+      "id": "7397504d-b4cb-44c6-a227-5c7a29f7661f",
+      "name": "Bülten Haberlerini Kaydet"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Zamanlayıcı": {
+      "main": [
+        [
+          {
+            "node": "Haberleri Çek",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Haberleri Çek": {
+      "main": [
+        [
+          {
+            "node": "Kullanıcıları Çek",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Kullanıcıları Çek": {
+      "main": [
+        [
+          {
+            "node": "Kullanıcıları Ayır",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Client": {
+      "ai_tool": [
+        [
+          {
+            "node": "Bülten Hazırla",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Bülten Hazırla": {
+      "main": [
+        [
+          {
+            "node": "Bülten Gönder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Bülten Hazırla",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Bülten Gönder": {
+      "main": [
+        [
+          {
+            "node": "Haber Listesi Hazırla",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Kullanıcıları Ayır": {
+      "main": [
+        [
+          {
+            "node": "Bülten Hazırla",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Haber Listesi Hazırla": {
+      "main": [
+        [
+          {
+            "node": "Bülten Haberlerini Kaydet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "209161c4-1a26-4b28-8562-dfcff68ff221",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "409666e2685c5dec0ce2ba55916475939b59aaceb7cfc34df0f332c03c131f5a"
+  },
+  "id": "gfYsBDmbC0ZBHv5k",
+  "tags": []
+}
