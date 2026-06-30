@@ -1,1 +1,3205 @@
-{}
+{
+  "name": "S2 - Reaktif Sohbet v2",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message",
+          "callback_query"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -2384,
+        304
+      ],
+      "id": "01bd8a78-475a-41af-beaa-a5b362ea8651",
+      "name": "Telegram Trigger",
+      "webhookId": "e63b6b6b-8986-4f4d-b0cd-95e67f1d4f56",
+      "credentials": {
+        "telegramApi": {
+          "id": "mgOitC3rLxsdGGzS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "430d6a85-f060-426e-bd14-1b9fe236b7d9",
+              "name": "chat_id",
+              "value": "={{ $json.message?.chat.id || $json.callback_query?.from.id }}",
+              "type": "string"
+            },
+            {
+              "id": "5a763865-d020-42e6-bd69-919c0fc5eba3",
+              "name": "username",
+              "value": "={{ $json.message?.from.username || $json.callback_query?.from.username }}",
+              "type": "string"
+            },
+            {
+              "id": "a46923c7-fb61-41d7-ac84-a0ba652d37f6",
+              "name": "full_name",
+              "value": "={{ ($json.message?.from.first_name || $json.callback_query?.from.first_name || '') + ' ' + ($json.message?.from.last_name || $json.callback_query?.from.last_name || '') }}\n",
+              "type": "string"
+            },
+            {
+              "id": "461b9baa-154e-4842-82c3-292f67d0b37d",
+              "name": "user_message",
+              "value": "={{ $json.message?.text || $json.callback_query?.data || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "16e57db7-6924-45cf-8d6f-8ec4a9918003",
+              "name": "callback_data:",
+              "value": "={{ $json.callback_query?.data \n\n '' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2192,
+        304
+      ],
+      "id": "3fd92aa6-90a4-4ec0-9c3e-92d4b6817d25",
+      "name": "Kullanıcı Verisini Çıkar"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://localhost:8000/mcp",
+        "tool": {
+          "__rl": true,
+          "value": "get_or_create_user",
+          "mode": "list",
+          "cachedResultName": "get_or_create_user"
+        },
+        "parameters": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "telegram_chat_id": "={{ $('Kullanıcı Verisini Çıkar').item.json.chat_id }}",
+            "username": "={{ $('Kullanıcı Verisini Çıkar').item.json.username }}",
+            "full_name": "={{ $('Kullanıcı Verisini Çıkar').item.json.full_name }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "telegram_chat_id",
+              "displayName": "Telegram Chat Id",
+              "defaultMatch": false,
+              "required": true,
+              "display": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "username",
+              "displayName": "Username",
+              "defaultMatch": false,
+              "required": false,
+              "display": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "full_name",
+              "displayName": "Full Name",
+              "defaultMatch": false,
+              "required": false,
+              "display": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClient",
+      "typeVersion": 1,
+      "position": [
+        -1984,
+        304
+      ],
+      "id": "be6c1497-1622-456a-909e-d17a35114684",
+      "name": "Kullanıcıyı Kaydet"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Telegram Trigger').first().json.callback_query?.data }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    },
+                    "id": "dba6c397-2534-4d09-bfed-1fc00f367e5e"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Callback"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "b06cd9b0-ef4b-4c8e-8214-6118b6d1fd07",
+                    "leftValue": "={{ $('Telegram Trigger').first().json.message?.text }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Normal Mesaj"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "f51a0611-ba53-4eb5-b8da-5780c59a679a",
+                    "leftValue": "={{ String($('Telegram Trigger').first().json.message?.location?.latitude ?? '') }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Konum"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -1248,
+        288
+      ],
+      "id": "d28a115c-b1db-4095-a3ca-9dfbca0fe2a4",
+      "name": "Callback mı?"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Kullanıcı Verisini Çıkar').first().json.user_message }}",
+                    "rightValue": "/start",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "e7abb6c0-35bf-45a8-9735-215143898ce4"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Start"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "06133d33-d20c-4137-af81-d42f9f092d4b",
+                    "leftValue": "={{ $('Kullanıcı Verisini Çıkar').first().json.user_message }}",
+                    "rightValue": "/menu",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Ana Menü"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "fc62ea5a-85dd-49e5-80b5-dbe85060f592",
+                    "leftValue": "={{ $('Kullanıcı Verisini Çıkar').first().json.user_message }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Normal Mesaj"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -688,
+        368
+      ],
+      "id": "ba5b6a63-d3af-4a8b-9982-64b006134b8b",
+      "name": "Mesaj Türü"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Kullanıcı Verisini Çıkar').first().json.chat_id }}",
+        "text": "=👋 Merhaba, {{ $('Kullanıcı Verisini Çıkar').first().json.full_name }} \nHoşgeldin :) Ben senin kişisel haber asistanınım. Aşağıdaki menüden istediğin işlemi seçebilirsin.",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "📰 Günün Haberleri",
+                    "additionalFields": {
+                      "callback_data": "menu_gunun_haberleri"
+                    }
+                  },
+                  {
+                    "text": "🔴 Son Dakika",
+                    "additionalFields": {
+                      "callback_data": "menu_son_dakika"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "🎯 İlgi Alanlarımı Seç",
+                    "additionalFields": {
+                      "callback_data": "menu_ilgi_alanlari"
+                    }
+                  },
+                  {
+                    "text": "👤 Profilim",
+                    "additionalFields": {
+                      "callback_data": "menu_profilim"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "💱 Döviz Kurları",
+                    "additionalFields": {
+                      "callback_data": "menu_doviz_kurlari"
+                    }
+                  },
+                  {
+                    "text": "🌤️ Hava Durumu",
+                    "additionalFields": {
+                      "callback_data": "menu_hava_durumu"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "⚙️ Ayarlar ",
+                    "additionalFields": {
+                      "callback_data": "menu_ayarlar"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "❓ Yardım",
+                    "additionalFields": {
+                      "callback_data": "menu_yardim"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "Markdown"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -320,
+        288
+      ],
+      "id": "43c16368-3dba-49e0-8347-9bfcf1cf8fec",
+      "name": "Açılış Menüsü Gönder",
+      "webhookId": "ed367d0a-33db-4437-ab44-429cb204bc04",
+      "credentials": {
+        "telegramApi": {
+          "id": "mgOitC3rLxsdGGzS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Telegram Trigger').first().json.callback_query.data }}",
+                    "rightValue": "menu_gunun_haberleri",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "08929505-26c8-4dcf-8a68-a5fecf42a0e1"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Günün Haberleri"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "5660f1bb-363d-427b-857c-c2a6dcde8e87",
+                    "leftValue": "={{ $('Telegram Trigger').first().json.callback_query.data }}",
+                    "rightValue": "menu_son_dakika",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Son Dakika"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "2d757cc8-3641-4dd3-926c-adeb857b90da",
+                    "leftValue": "={{ $('Telegram Trigger').first().json.callback_query.data }}",
+                    "rightValue": "menu_ilgi_alanlari",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "İlgi Alanları"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "c402cfd9-73ce-4c91-92bc-b91c6b53d82a",
+                    "leftValue": "={{ $('Telegram Trigger').first().json.callback_query.data }}",
+                    "rightValue": "menu_profilim",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Profilim"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "d60b1f81-7675-4fea-86ae-e11cfe968b69",
+                    "leftValue": "={{ $('Telegram Trigger').first().json.callback_query.data }}",
+                    "rightValue": "menu_doviz_kurlari",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Döviz Kurları"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "2263fbe3-fba9-4f69-a6f7-a322db088c89",
+                    "leftValue": "={{ $('Telegram Trigger').first().json.callback_query.data }}",
+                    "rightValue": "menu_hava_durumu",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Hava Durumu"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "4e22760b-d38a-447a-9d4b-60388e750593",
+                    "leftValue": "={{ $('Telegram Trigger').first().json.callback_query.data }}",
+                    "rightValue": "menu_ayarlar",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Ayarlar"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "4df6ca7a-f350-4e9e-8437-7d2fdc1164d4",
+                    "leftValue": "={{ $('Telegram Trigger').first().json.callback_query.data }}",
+                    "rightValue": "menu_yardim",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Yardım"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "e239a9fc-a499-4a00-8b77-1d3bc9a991a9",
+                    "leftValue": "={{ $('Telegram Trigger').first().json.callback_query.data }}",
+                    "rightValue": "menu_ana_menu",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Ana Menü"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "92d93a5c-08db-44aa-9057-3b29d9328551",
+                    "leftValue": "={{ $('Telegram Trigger').first().json.callback_query.data }}",
+                    "rightValue": "^cat_",
+                    "operator": {
+                      "type": "string",
+                      "operation": "regex"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Kategori Seçimi"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "64491c0d-cc68-4141-b152-21d0839648d8",
+                    "leftValue": "={{ $('Telegram Trigger').first().json.callback_query.data }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Diğer Callback"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -480,
+        -272
+      ],
+      "id": "1de0ff46-4f9b-4a33-a69a-8af98a34bd60",
+      "name": "Menü Seçimi"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Kullanıcı Verisini Çıkar').item.json.chat_id }}",
+        "text": "🗂️ Hangi konularla ilgileniyorsunuz?  Birden fazla seçebilirsiniz. Seçimlerini tamamlayınca ✅ Tamam butonuna bas!",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "🗳️ Siyaset",
+                    "additionalFields": {
+                      "callback_data": "pref_siyaset"
+                    }
+                  },
+                  {
+                    "text": "⭐ Magazin",
+                    "additionalFields": {
+                      "callback_data": "pref_magazin"
+                    }
+                  },
+                  {
+                    "text": "💰 Ekonomi",
+                    "additionalFields": {
+                      "callback_data": "pref_ekonomi"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "⚽ Spor",
+                    "additionalFields": {
+                      "callback_data": "pref_spor"
+                    }
+                  },
+                  {
+                    "text": "💻 Teknoloji",
+                    "additionalFields": {
+                      "callback_data": "pref_teknoloji"
+                    }
+                  },
+                  {
+                    "text": "🔬 Bilim",
+                    "additionalFields": {
+                      "callback_data": "pref_bilim"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "🏥 Sağlık",
+                    "additionalFields": {
+                      "callback_data": "pref_sağlık"
+                    }
+                  },
+                  {
+                    "text": "🚗 Otomotiv",
+                    "additionalFields": {
+                      "callback_data": "pref_otomotiv"
+                    }
+                  },
+                  {
+                    "text": "🍳 Yemek",
+                    "additionalFields": {
+                      "callback_data": "pref_yemek"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "🎵 Müzik",
+                    "additionalFields": {
+                      "callback_data": "pref_müzik"
+                    }
+                  },
+                  {
+                    "text": "🎬 Dizi-Film",
+                    "additionalFields": {
+                      "callback_data": "pref_dizi_film"
+                    }
+                  },
+                  {
+                    "text": "🤖 AI",
+                    "additionalFields": {
+                      "callback_data": "pref_ai"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "✅ Tamam",
+                    "additionalFields": {
+                      "callback_data": "pref_tamam"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -80,
+        -608
+      ],
+      "id": "a94ef6b6-1c59-44c3-89df-d381d0b6e720",
+      "name": "Tercih Butonlarını Gönder",
+      "webhookId": "9cc8d765-0594-41b6-8184-3af4c190a5f9",
+      "credentials": {
+        "telegramApi": {
+          "id": "mgOitC3rLxsdGGzS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const query = $('Telegram Trigger').first().json.callback_query;\nconst chatId = String(query.from.id);\nconst callbackData = query.data;\nconst messageId = query.message.message_id;\nconst staticData = $getWorkflowStaticData('global');\n\nif (!staticData.preferences) {\n  staticData.preferences = {};\n}\n\nif (callbackData === 'menu_ilgi_alanlari') {\n  staticData.preferences[chatId] = [];\n}\n\nif (!staticData.preferences[chatId]) {\n  staticData.preferences[chatId] = [];\n}\n\n// Her zaman sadece geçerli kategorileri tut\nif (staticData.preferences[chatId]) {\n  staticData.preferences[chatId] = staticData.preferences[chatId].filter(t => \n    ['ai', 'bilim', 'dizi_film', 'ekonomi', 'magazin', 'müzik', 'otomotiv', 'sağlık', 'siyaset', 'spor', 'teknoloji', 'yemek'].includes(t)\n  );\n}\n\nlet selectedTopics = [...staticData.preferences[chatId]];\n\n// pref_ ile başlayan ve pref_tamam olmayan callback'leri toggle et\nif (callbackData.startsWith('pref_') && callbackData !== 'pref_tamam') {\n  const topic = callbackData.replace('pref_', '');\n  const index = selectedTopics.indexOf(topic);\n  if (index === -1) {\n    selectedTopics.push(topic);\n  } else {\n    selectedTopics.splice(index, 1);\n  }\n  staticData.preferences[chatId] = selectedTopics;\n}\n\nreturn [{\n  json: {\n    chat_id: chatId,\n    message_id: messageId,\n    callback_query_id: query.id,\n    callback_data: callbackData,\n    username: query.from.username || null,\n    full_name: [\n      query.from.first_name || \"\",\n      query.from.last_name || \"\"\n    ].join(\" \").trim() || null,\n    selected_topics: selectedTopics\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        112,
+        304
+      ],
+      "id": "1fefdbfa-cfbe-4e78-9e3e-777fccd80538",
+      "name": "Callback Verisini Çıkar"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "130eb0fb-0801-452d-ba51-6f98b9cc7d2a",
+              "leftValue": "={{ $('Callback Verisini Çıkar').first().json.callback_data }}",
+              "rightValue": "pref_tamam",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        624,
+        304
+      ],
+      "id": "3862ca07-8e13-40c7-b15d-9c2d911d3c5d",
+      "name": "Tamam mı?"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://localhost:8000/mcp",
+        "tool": {
+          "__rl": true,
+          "value": "set_initial_preferences",
+          "mode": "list",
+          "cachedResultName": "set_initial_preferences"
+        },
+        "parameters": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "selected_topics": "={{ $('Callback Verisini Çıkar').item.json.selected_topics }}",
+            "telegram_chat_id": "={{ $('Callback Verisini Çıkar').item.json.chat_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "telegram_chat_id",
+              "displayName": "Telegram Chat Id",
+              "defaultMatch": false,
+              "required": true,
+              "display": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "selected_topics",
+              "displayName": "Selected Topics",
+              "defaultMatch": false,
+              "required": true,
+              "display": true,
+              "type": "array",
+              "defaultValue": "[\n  null\n]",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClient",
+      "typeVersion": 1,
+      "position": [
+        832,
+        208
+      ],
+      "id": "276c4ab1-ee87-4928-8505-0753e374a970",
+      "name": "Tercihleri Kaydet"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $('Callback Verisini Çıkar').first().json;\nconst selected = data.selected_topics;\nconst chatId = data.chat_id;\nconst messageId = data.message_id;\n\nconst allTopics = [\n  { key: \"siyaset\", emoji: \"🗳️\", label: \"Siyaset\" },\n  { key: \"magazin\", emoji: \"⭐\", label: \"Magazin\" },\n  { key: \"ekonomi\", emoji: \"💰\", label: \"Ekonomi\" },\n  { key: \"spor\", emoji: \"⚽\", label: \"Spor\" },\n  { key: \"bilim\", emoji: \"🔬\", label: \"Bilim\" },\n  { key: \"teknoloji\", emoji: \"💻\", label: \"Teknoloji\" },\n  { key: \"sağlık\", emoji: \"🏥\", label: \"Sağlık\" },\n  { key: \"yemek\", emoji: \"🍳\", label: \"Yemek\" },\n  { key: \"otomotiv\", emoji: \"🚗\", label: \"Otomotiv\" },\n  { key: \"müzik\", emoji: \"🎵\", label: \"Müzik\" },\n  { key: \"dizi_film\", emoji: \"🎬\", label: \"Dizi-Film\" },\n  { key: \"ai\", emoji: \"🤖\", label: \"AI\" }\n];\n\nconst keyboard = [];\n\n// 3 buton per row (3x4 grid)\nfor (let i = 0; i < allTopics.length; i += 3) {\n  const row = [];\n  for (let j = i; j < i + 3 && j < allTopics.length; j++) {\n    const t = allTopics[j];\n    const isSelected = selected.includes(t.key);\n    row.push({\n      text: isSelected ? `✅ ${t.emoji} ${t.label}` : `${t.emoji} ${t.label}`,\n      callback_data: `pref_${t.key}`\n    });\n  }\n  keyboard.push(row);\n}\n\n// Tamam butonu (en altta tek başına)\nkeyboard.push([{\n  text: selected.length > 0 \n    ? `✅ Seçimimi Tamamla (${selected.length} seçili)` \n    : '✅ Seçimimi Tamamla',\n  callback_data: 'pref_tamam'\n}]);\n\nreturn [{\n  json: {\n    chat_id: chatId,\n    message_id: messageId,\n    selected_topics: selected,\n    text: '📰 Hangi konularla ilgileniyorsunuz? Birden fazla seçebilirsiniz. Seçimlerinizi tamamlayınca ✅ Tamam butonuna basın!',\n    reply_markup: JSON.stringify({ inline_keyboard: keyboard })\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        832,
+        384
+      ],
+      "id": "d506f5f6-144d-49b1-988a-5900fd009c32",
+      "name": "Buton Metnini Hazırla"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Callback Verisini Çıkar').item.json.chat_id }}",
+        "text": "🎉 Harika! Tercihleriniz kaydedildi.  Artık sana özel haberler hazırlamaya başlayabilirim. İstediğin zaman benimle sohbet edebilirsin! 🗞️",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1040,
+        192
+      ],
+      "id": "9c929193-01f6-45da-b46f-690573e2c133",
+      "name": "Hazırsınız Mesajı",
+      "webhookId": "5b7d20c8-a6f7-46c6-a1d5-99bb33cc80b5",
+      "credentials": {
+        "telegramApi": {
+          "id": "mgOitC3rLxsdGGzS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "callback",
+        "queryId": "={{ $('Callback Verisini Çıkar').first().json.callback_query_id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        384,
+        304
+      ],
+      "id": "7c1011c4-ddd0-4c6e-811a-35325bfc1bc5",
+      "name": "Callback Yanıtla",
+      "webhookId": "d038cb2e-aee6-45b0-b03a-f9227722e5aa",
+      "credentials": {
+        "telegramApi": {
+          "id": "mgOitC3rLxsdGGzS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/bot8636519442:AAHio0muSwdngpDxOq3eA4KlVcjdKEvJcVw/editMessageText",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"chat_id\": {{ $('Buton Metnini Hazırla').first().json.chat_id }},\n  \"message_id\": {{ $('Buton Metnini Hazırla').first().json.message_id }},\n  \"text\": \"{{ $('Buton Metnini Hazırla').first().json.text }}\",\n  \"reply_markup\": {{ $('Buton Metnini Hazırla').first().json.reply_markup }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1040,
+        384
+      ],
+      "id": "63a9676b-adbb-4a5a-ae8b-e201044e971e",
+      "name": "Mesaj Güncelle",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://localhost:8000/mcp",
+        "tool": {
+          "__rl": true,
+          "value": "get_user_full_profile",
+          "mode": "list",
+          "cachedResultName": "get_user_full_profile"
+        },
+        "parameters": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "telegram_chat_id": "={{ $('Kullanıcı Verisini Çıkar').item.json.chat_id }}"
+          },
+          "matchingColumns": [
+            "telegram_chat_id"
+          ],
+          "schema": [
+            {
+              "id": "telegram_chat_id",
+              "displayName": "Telegram Chat Id",
+              "defaultMatch": false,
+              "required": true,
+              "display": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClient",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        -416
+      ],
+      "id": "aaac5050-624c-4fc1-91bc-73e23b1516a1",
+      "name": "Kullanıcı Profilini Çek"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Kullanıcı Verisini Çıkar').first().json.chat_id }}",
+        "text": "⚙️ Ayarlar  \n\nKişiselleştirme \n🎯 İlgi Alanlarımı Seç → Haber kategorilerini değiştir \n👤 Profilim → İstatistiklerini ve ilgi profilini gör  \n\nBot Kontrolü \n▶️ /start → Botu yeniden başlat \n⏹️ /stop → Botu durdur  Herhangi bir sorun yaşarsan \n❓ Yardım bölümüne göz atabilirsin.",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "🔙 Ana Menü",
+                    "additionalFields": {
+                      "callback_data": "menu_ana_menu"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "Markdown"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        240,
+        0
+      ],
+      "id": "e5b4a845-976a-492d-aee8-e2e23d2565f0",
+      "name": "Ayarlar Bilgisi Gönder",
+      "webhookId": "9ba25129-7ee6-429e-bac6-4c965a707e5f",
+      "credentials": {
+        "telegramApi": {
+          "id": "mgOitC3rLxsdGGzS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Kullanıcı Verisini Çıkar').first().json.chat_id }}",
+        "text": "🔴 Son dakika haberleri için lütfen bekleyin...",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -64,
+        -912
+      ],
+      "id": "3f3de6b8-f394-48d6-b591-fb644fe19c03",
+      "name": "Son Dakika Mesajı",
+      "webhookId": "011b54e4-32de-4801-965b-c04d0e99b602",
+      "credentials": {
+        "telegramApi": {
+          "id": "mgOitC3rLxsdGGzS",
+          "name": "Telegram account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1343ff11-80c3-4b88-8f4b-4c2f7d805dc5",
+              "name": "user_message",
+              "value": "Son dakika haberlerini getir. get_latest_news(limit=10) çağır, acil/kritik haberleri öne çıkar, şu formatta sun:  🔴 *Son Dakika* 📅 [Tarih]  1️⃣ *Başlık* Özet. 📰 Kaynak 🔗 [Haberi Oku](URL)  Selamlaşma yapma, direkt haberleri göster.",
+              "type": "string"
+            },
+            {
+              "id": "0359b260-c40f-41c6-991e-386f1e98e715",
+              "name": "chat_id",
+              "value": "={{ $('Kullanıcı Verisini Çıkar').first().json.chat_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        352,
+        -1008
+      ],
+      "id": "3098512b-7079-4aeb-8ef7-f78130df81b8",
+      "name": "Son Dakika Komutu"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "80471acd-e683-4ac2-badc-7c47d48135f9",
+              "name": "user_message",
+              "value": "={{ $('Kullanıcı Verisini Çıkar').item.json.chat_id }} kullanıcısının bugünkü bülten haberlerini getir. get_bulletin_news tool'unu kullanarak news_index 1'den 6'ya kadar haberleri sırayla getir ve şu formatta sun:\n\n🗞️ Günün Özeti\n📅 [Tarih]\n\n1. Başlık\nÖzet. Kaynak\n🔗 [Haberi Oku](URL)\n\nHer haber için get_bulletin_news(user_chat_id=CHAT_ID, news_index=NUMARA) çağır. 6 haberi getirdikten sonra DUR.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -48,
+        -1200
+      ],
+      "id": "dd163c00-6bd9-4110-9674-a49cb6dc080c",
+      "name": "Günün Haberleri Komutu"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/bot8636519442:AAHio0muSwdngpDxOq3eA4KlVcjdKEvJcVw/sendChatAction",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"chat_id\": \"{{ $('Kullanıcı Verisini Çıkar').first().json.chat_id }}\",\n  \"action\": \"typing\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        544,
+        -1008
+      ],
+      "id": "9a42b667-99c2-41d2-9181-f09858dc8ecf",
+      "name": "Yazıyor Efekti-3"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/bot8636519442:AAHio0muSwdngpDxOq3eA4KlVcjdKEvJcVw/sendChatAction",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"chat_id\": \"{{ $('Kullanıcı Verisini Çıkar').first().json.chat_id }}\",\n  \"action\": \"typing\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -272,
+        624
+      ],
+      "id": "fa5a35cd-ae92-4ba3-9711-914ca6bdf3d4",
+      "name": "Yazıyor Efekti-2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/bot8636519442:AAHio0muSwdngpDxOq3eA4KlVcjdKEvJcVw/sendChatAction",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"chat_id\": \"{{ $('Kullanıcı Verisini Çıkar').first().json.chat_id }}\",\n  \"action\": \"typing\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        192,
+        -1200
+      ],
+      "id": "1d5989f5-9214-485c-b20f-fbd73e662afc",
+      "name": "Yazıyor Efekti-1"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://localhost:8000/mcp",
+        "tool": {
+          "__rl": true,
+          "value": "fetch_news",
+          "mode": "list",
+          "cachedResultName": "fetch_news"
+        },
+        "inputMode": "json",
+        "jsonInput": "{\n  \"category\": \"son_dakika\",\n  \"limit\": 10\n}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClient",
+      "typeVersion": 1,
+      "position": [
+        144,
+        -1008
+      ],
+      "id": "426dc9d5-479b-401b-84b8-60d26b45f8b1",
+      "name": "RSS Çek"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Kullanıcı Verisini Çıkar').first().json.chat_id }}",
+        "text": "⏳ Yanıtınız hazırlanıyor...",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        448,
+        -1200
+      ],
+      "id": "b51bc908-d9ed-4f58-a60a-c73d9a80021e",
+      "name": "Yanıt Oluşturma - 1",
+      "webhookId": "9a7f9ad7-9a8d-4848-b2c9-cc20deba686d",
+      "credentials": {
+        "telegramApi": {
+          "id": "mgOitC3rLxsdGGzS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Kullanıcı Verisini Çıkar').first().json.chat_id }}",
+        "text": "⏳ Yanıtınız hazırlanıyor...",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -64,
+        624
+      ],
+      "id": "aa471f81-11de-4272-ba19-3fcb63f5368a",
+      "name": "Yanıt Oluşturma - 3",
+      "webhookId": "9a7f9ad7-9a8d-4848-b2c9-cc20deba686d",
+      "credentials": {
+        "telegramApi": {
+          "id": "mgOitC3rLxsdGGzS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.content[0].text.data.is_new_user }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "id": "18322515-35bb-4016-986b-eaea0d574678"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Yeni Kullanıcı"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "5151d609-22ae-43bc-ae38-4f675907eab4",
+                    "leftValue": "={{ $json.content[0].text.data.is_new_user }}",
+                    "rightValue": "true",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "false",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Mevcut Kullanıcı"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -1520,
+        304
+      ],
+      "id": "56d84d99-5d53-4d6a-b5ef-942b99b10ecf",
+      "name": "Yeni Kullanıcı Mı?"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Kullanıcı Verisini Çıkar').first().json.chat_id }}",
+        "text": "={{ \n  \"👤 PROFİLİM\\n\\n\" +\n  \"📋 Kişisel Bilgiler\\n\" +\n  \"• Ad: \" + $json.content[0].text.data.user.full_name.replace(/[\\n\\r*_`\\[\\]()]/g, '').trim() + \"\\n\" +\n  \"• Kayıt: \" + $json.content[0].text.data.user.created_at.substring(0, 10) + \"\\n\" +\n  \"• Üyelik: \" + $json.content[0].text.data.user.membership_days + \" günlük takipçi 🎉\\n\\n\" +\n  \"🌟 İlgi Alanı Profilin\\n\\n\" +\n  \"🔥 En Çok İlgilendiklerin\\n\" +\n  ($json.content[0].text.data.preferences.filter(p => p.weight >= 4).map(p => \n    ({'kültür-sanat':'🎭','bilim':'🔬','dünya':'🌍','teknoloji':'💻','spor':'⚽','ekonomi':'💼','sağlık':'🏥','türkiye':'🇹🇷','dizi_film':'🎬','magazin':'🎭','yemek':'🍽️','otomotiv':'🚗','müzik':'🎵','ai':'🤖','siyaset':'🗳️','teknoloji':'💻','sağlık':'🏥'}[p.topic] || '📌') +\n    ' ' + p.topic.replace(/_/g, ' ').charAt(0).toUpperCase() + p.topic.replace(/_/g, ' ').slice(1) +\n    ' - ' + (p.weight >= 5 ? '⭐⭐⭐⭐⭐' : '⭐⭐⭐⭐')\n  ).join('\\n') || 'Henüz yok') + \"\\n\\n\" +\n  \"✨ Orta Düzey İlgi\\n\" +\n  ($json.content[0].text.data.preferences.filter(p => p.weight > 0 && p.weight < 4).map(p => \n    ({'kültür-sanat':'🎭','bilim':'🔬','dünya':'🌍','teknoloji':'💻','spor':'⚽','ekonomi':'💼','sağlık':'🏥','türkiye':'🇹🇷','dizi_film':'🎬','magazin':'🎭','yemek':'🍽️','otomotiv':'🚗','müzik':'🎵','ai':'🤖','siyaset':'🗳️'}[p.topic] || '📌') +\n    ' ' + p.topic.replace(/_/g, ' ').charAt(0).toUpperCase() + p.topic.replace(/_/g, ' ').slice(1) +\n    ' - ' + (p.weight >= 3 ? '⭐⭐⭐' : p.weight >= 1.5 ? '⭐⭐' : '⭐')\n  ).join('\\n') || 'Henüz yok') + \"\\n\\n\" +\n  \"😴 İlgilenmediklerin\\n\" +\n  ($json.content[0].text.data.preferences.filter(p => p.weight <= 0).map(p => \n    ({'kültür-sanat':'🎭','bilim':'🔬','dünya':'🌍','teknoloji':'💻','spor':'⚽','ekonomi':'💼','sağlık':'🏥','türkiye':'🇹🇷','dizi_film':'🎬','magazin':'🎭','yemek':'🍽️','otomotiv':'🚗','müzik':'🎵','ai':'🤖','siyaset':'🗳️'}[p.topic] || '📌') +\n    ' ' + p.topic.replace(/_/g, ' ').charAt(0).toUpperCase() + p.topic.replace(/_/g, ' ').slice(1)\n  ).join('\\n') || 'Henüz yok') + \"\\n\\n\" +\n  \"📊 Etkileşim İstatistiklerin\\n\" +\n  \"• Toplam okunan haber: \" + $json.content[0].text.data.stats.total_interactions + \"\\n\" +\n  \"• Bu haftaki etkileşim: \" + $json.content[0].text.data.stats.weekly_interactions + \"\\n\" +\n  \"• En aktif olduğun gün: \" + ($json.content[0].text.data.stats.most_active_day || 'Henüz belirsiz') + \"\\n\\n\" +\n  \"💡 İpucu\\n\" +\n  \"Profilini güçlendirmek için haberleri beğendiğini veya istemediğini söylemen yeterli! Sistem öğrenir 🎯\"\n}}",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "🔙 Ana Menü",
+                    "additionalFields": {
+                      "callback_data": "menu_ana_menu"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "Markdown"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        112,
+        -416
+      ],
+      "id": "33a2c52e-cfa1-4248-8ae5-e5aa1e252eea",
+      "name": "Profil Bilgisi Gönder",
+      "webhookId": "71b66132-f66d-43fd-b389-6965dbf2e8fd",
+      "credentials": {
+        "telegramApi": {
+          "id": "mgOitC3rLxsdGGzS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Kullanıcı Verisini Çıkar').first().json.chat_id }}",
+        "text": "📍 Hava durumunu görebilmem için konumunu paylaşır mısın?",
+        "replyMarkup": "replyKeyboard",
+        "replyKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "📍 Konumumu Paylaş",
+                    "additionalFields": {
+                      "request_location": true
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "replyKeyboardOptions": {
+          "resize_keyboard": true,
+          "one_time_keyboard": true
+        },
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -96,
+        -112
+      ],
+      "id": "dac6b174-8ad2-46ea-bdb8-b0497deeb51b",
+      "name": "Konum İste",
+      "webhookId": "3fcc13a4-088b-4205-8deb-ec13a5c84cf4",
+      "credentials": {
+        "telegramApi": {
+          "id": "mgOitC3rLxsdGGzS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Kullanıcı Verisini Çıkar').first().json.chat_id }}",
+        "text": "={{ \"📍 \" + $('Hava Durumu Çek').first().json.name + \" için hava durumu:\\n\\n\" + \"🌡️ Sıcaklık: \" + $('Hava Durumu Çek').first().json.main.temp + \"°C\\n\" + \"🥵 Hissedilen: \" + $('Hava Durumu Çek').first().json.main.feels_like + \"°C\\n\" + \"💧 Nem: \" + $('Hava Durumu Çek').first().json.main.humidity + \"%\\n\" + \"💨 Rüzgar: \" + $('Hava Durumu Çek').first().json.wind.speed + \" m/s\\n\" + \"🌤 Durum: \" + $('Hava Durumu Çek').first().json.weather[0].description }}",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "🔙 Ana Menü",
+                    "additionalFields": {
+                      "callback_data": "menu_ana_menu"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -448,
+        720
+      ],
+      "id": "031e415a-9c8c-4a45-804d-94c5eff33204",
+      "name": "Hava Durumu Gönder",
+      "webhookId": "415b73c1-472c-4017-8e05-79cc3448ae7f",
+      "credentials": {
+        "telegramApi": {
+          "id": "mgOitC3rLxsdGGzS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://localhost:8000/mcp",
+        "include": "selected",
+        "includeTools": [
+          "search_news",
+          "record_interaction",
+          "update_user_preference",
+          "get_bulletin_news",
+          "get_user_bulletin",
+          "search_web",
+          "get_news_detail",
+          "get_bulletin_news_detail",
+          "save_breaking_news",
+          "get_breaking_news_detail"
+        ],
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        416,
+        784
+      ],
+      "id": "0d3b599a-198a-492c-9684-33ba54712b8e",
+      "name": "MCP Client"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Kullanıcı mesajı: {{ $('Kullanıcı Verisini Çıkar').first().json.user_message }}\nKullanıcı chat_id: {{ $('Kullanıcı Verisini Çıkar').first().json.chat_id }}",
+        "options": {
+          "systemMessage": "=Sen \"Haber Arkadaşı\"sın. Kullanıcının kişisel haber asistanı. Samimi, sıcak Türkçe konuş.\n\nKULLANICI chat_id: {{ $('Kullanıcı Verisini Çıkar').first().json.chat_id }}\n\n═══════════════════════════════════════\nDURUMLAR — Karar ver:\n═══════════════════════════════════════\n\nDURUM 1: Kullanıcı \"günün haberleri\" diyorsa\n→ get_user_bulletin(user_chat_id) çağır\n→ Liste formatında sun (LİSTE FORMATI'na bak)\n→ BİTİR\n\nDURUM 2: Kullanıcı BELİRLİ BİR BÜLTENDEKİ haberin özetini istiyorsa\n\nÖNCE HANGİ BÜLTEN OLDUĞUNU BELİRLE:\n  A) Mesajda \"günlük\", \"bülten\", \"günün haberi\" geçiyorsa → GÜNLÜK BÜLTEN\n  B) Mesajda \"son dakika\" geçiyorsa → SON DAKİKA\n  C) Kullanıcı önceki mesajında hangi bülteni açtıysa → O BÜLTEN\n  D) BELİRSİZSE (sadece \"4. haberi özetle\" gibi, hangi bülten belli değilse):\n     → Tool ÇAĞIRMA, kullanıcıya SADECE şu mesajı gönder (başka açıklama ekleme):\n\n📋 Hangi listedeki haberi özetlememi istersin?\n\n📰 Günlük bülten\n🔴 Son dakika haberleri\n\n     → Kullanıcının cevabını bekle, BİTİR\n\nBÜLTEN BELLİYSE:\n  Günlük bülten → get_bulletin_news_detail(user_chat_id=CHAT_ID, news_index=NUMARA veya keyword=KELIME)\n  Son dakika → get_breaking_news_detail(user_chat_id=CHAT_ID, news_index=NUMARA veya keyword=KELIME)\n→ Dönen full_text'ten 4-5 cümle özet yaz (ÖZET FORMATI'na bak)\n→ BİTİR\n\nDURUM 2 DEVAM: Kullanıcı bülten sorusuna cevap verdiyse\nÖrnek: önceki mesajda \"hangi bülten?\" diye sordun, kullanıcı \"günlük\" veya \"son dakika\" dedi\n→ Önceki mesajdaki numara/konuyu hatırla ve doğru tool'u çağır\n→ BİTİR\n\nDURUM 4: Kullanıcı bir haberi BEĞENDİĞİNİ veya BEĞENMEDİĞİNİ söylüyorsa\nÖrnek mesajlar:\n- \"Bu haberi beğendim\", \"güzel haberdi\", \"çok ilginçti\", \"süper\"\n- \"Bu haberi beğenmedim\", \"ilgimi çekmedi\", \"sıkıcıydı\", \"böyle haber istemiyorum\"\n- \"Teknoloji haberlerini seviyorum\", \"Magazin ilgimi çekmiyor\"\n\n→ Haberin/konunun KATEGORİSİNİ belirle (siyaset, ekonomi, teknoloji, spor, magazin vb.)\n→ Beğendiyse: update_user_preference(telegram_chat_id=CHAT_ID, topic=KATEGORİ, delta=0.5)\n→ Beğenmediyse: update_user_preference(telegram_chat_id=CHAT_ID, topic=KATEGORİ, delta=-0.3)\n→ Kısa ve samimi bir onay mesajı yaz. Örnekler:\n  Beğeni: \"Tamam, [kategori] haberlerine ilgini not ettim! 📝 Bundan sonra daha çok göreceksin 😊\"\n  Beğenmeme: \"Anladım, [kategori] haberlerini azaltacağım. Tercihini not ettim! 📝\"\n→ BİTİR\n\nDURUM 3: Kullanıcı GENEL BİR SORU SORDUYSA (yukarıdaki durumlara uymuyor)\n→ DOĞRUDAN search_web(query=KULLANICININ_SORUSU) çağır\n→ Gelen sonuçları kullanarak Türkçe akıcı ve samimi bir cevap yaz\n→ Cevabın sonuna \"🔍 Bu bilgiyi internetten araştırdım\" ekle\n→ BİTİR\n\n🚨 DURUM 3 İÇİN ÇOK ÖNEMLİ:\n- ASLA \"veritabanımda bulamadım\" gibi cümle KULLANMA\n- ASLA \"araştırayım mı?\" diye SORMA — doğrudan araştır\n\n═══════════════════════════════════════\nÖZET FORMATI (DURUM 2 için)\n═══════════════════════════════════════\n\n[Haber başlığı]\n\n[Tam metni okuyup 4-5 cümlelik samimi özet]\n- İlk cümle: olayın özü\n- Sonraki cümleler: detay, neden, etki\n- Son cümle: kısa yorum\n\n🔗 [Haberi Oku](URL)\n\n═══════════════════════════════════════\nLİSTE FORMATI (DURUM 1 için)\n═══════════════════════════════════════\n\n🗞 Günün Öne Çıkan Haberleri\n📅 [bugün]\n\n[Kategori emoji + adı]\n\n1️⃣ Başlık\n📰 Kaynak\n📝 2 cümle özet\n🔗 [Haberi Oku](URL)\n\n—\n\nKategoriler ve emojiler:\n🗳️ Siyaset | 🎭 Magazin | 💰 Ekonomi | ⚽ Spor\n🔬 Bilim | 💻 Teknoloji | 🏥 Sağlık | 🍽️ Yemek\n🚗 Otomotiv | 🎵 Müzik | 🎬 Dizi & Film | 🤖 AI\n\n═══════════════════════════════════════\nKESİN YASAKLAR\n═══════════════════════════════════════\n\n❌ \"Doğru aracı bulamıyorum\" gibi mesaj YAZMA\n❌ \"Veritabanımda yok\" gibi mesaj YAZMA — direkt search_web çağır\n❌ Başlığa bakıp özet UYDURMA - sadece full_text'i kullan\n❌ full_text olmadan ASLA haber özeti yazma (has_full_text=false ise başlığa göre kısa yorum yaz)\n❌ ###, **, * markdown KULLANMA\n❌ Bülten belirsizken direkt tool çağırma — önce kullanıcıya sor\n❌ İç düşünce sürecini, DURUM numaralarını veya karar mantığını kullanıcıya YAZMA\n❌ \"Kullanıcı şunu belirtmemiş\", \"Bu durumda DURUM X kapsamında\" gibi açıklama YAPMA\n❌ Sadece kullanıcıya yönelik doğal mesajı yaz, gerisini GIZLE\n\n✅ Her yeni kullanıcı mesajı için sıfırdan başla\n✅ DURUM 2 için TEK tool çağrısı yeterli\n✅ Belirsiz durumda kullanıcıya sor, tahmin etme",
+          "maxIterations": 10
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        224,
+        624
+      ],
+      "id": "5759405c-8bb0-4bcb-b5d8-934e026fc019",
+      "name": "Haber Asistanı AI Agent-1",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "deepseek-chat",
+          "mode": "id"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        176,
+        784
+      ],
+      "id": "e698b981-09d3-45c7-b754-2c0ea358a987",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "6vUobGeKL3vrf656",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Kullanıcı Verisini Çıkar').first().json.chat_id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        592,
+        544
+      ],
+      "id": "a9eddd0a-d802-4a66-9f32-3ba675336906",
+      "name": "Telegram Yanıt Gönder-",
+      "webhookId": "9769bab3-344d-4657-b71a-f01ae9e59b52",
+      "credentials": {
+        "telegramApi": {
+          "id": "mgOitC3rLxsdGGzS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Kullanıcı Verisini Çıkar').first().json.chat_id }}",
+        "text": "={{   \"❓ YARDIM REHBERİ\\n\\n\" +   \"Merhaba! Ben Duydun mu? — senin kişisel haber asistanınım 🤖\\n\" +   \"Aşağıda tüm özelliklerimi bulabilirsin 👇\\n\\n\" +    \"─────────────────\\n\" +   \"📋 ANA MENÜ BUTONLARI\\n\" +   \"─────────────────\\n\\n\" +    \"📰 Günün Haberleri\\n\" +   \"Bugünün en önemli haberlerini listeler.\\n\" +   \"Her haber numaralı ve kaynaklı gelir.\\n\\n\" +    \"🔴 Son Dakika\\n\" +   \"En güncel son dakika haberlerini getirir.\\n\\n\" +    \"🎯 İlgi Alanlarımı Seç\\n\" +   \"Hangi konuları sevdiğini seçersin.\\n\" +   \"Sistem buna göre sana özel haberler sunar.\\n\\n\" +    \"👤 Profilim\\n\" +   \"İlgi alanlarını, istatistiklerini ve\\n\" +   \"etkileşim geçmişini görürsün.\\n\\n\" +    \"⚙️ Ayarlar\\n\" +   \"İlgi alanlarını güncelleme ve bot\\n\" +   \"ayarları hakkında bilgi alırsın.\\n\\n\" +    \"🌤️ Hava Durumu\\n\" +   \"Konumunu paylaşırsın, anlık hava\\n\" +   \"durumunu öğrenirsin.\\n\\n\" +    \"💱 Döviz Kurları\\n\" +   \"USD, EUR, GBP kurları ve altın,\\n\" +   \"gümüş fiyatlarını görürsün.\\n\\n\" +    \"─────────────────\\n\" +   \"💬 SOHBET ÖZELLİKLERİ\\n\" +   \"─────────────────\\n\\n\" +    \"🔍 Haber Arama\\n\" +   \"Herhangi bir konu yazabilirsin:\\n\" +   \"→ teknoloji haberleri\\n\" +   \"→ ekonomide son gelişmeler\\n\" +   \"→ spor haberleri\\n\\n\" +    \"📖 Haber Özetleme\\n\" +   \"Listeden bir haberin detayını isteyebilirsin:\\n\" +   \"→ 3. haberi detaylı anlat\\n\" +   \"→ 2. haberi özetle\\n\\n\" +    \"👍 Geri Bildirim — Beğeni\\n\" +   \"Bir haberi beğendiysen:\\n\" +   \"→ ❤️ 👍 🔥 ⭐ emojilerinden birini gönder\\n\" +   \"→ veya beğendim, harika, güzel yaz\\n\" +   \"Sistem o konuyu öne çıkarmaya başlar!\\n\\n\" +    \"👎 Geri Bildirim — Beğenmeme\\n\" +   \"Bir konu ilgini çekmiyorsa:\\n\" +   \"→ 👎 😒 😴 emojilerinden birini gönder\\n\" +   \"→ veya sıkıcı, istemiyorum yaz\\n\" +   \"Sistem o konuyu azaltır.\\n\\n\" +    \"─────────────────\\n\" +   \"🧠 KİŞİSELLEŞTİRME\\n\" +   \"─────────────────\\n\\n\" +    \"Her etkileşimin sistemi eğitir:\\n\" +   \"⭐ Haber okuma → ilgi artar\\n\" +   \"❤️ Beğeni → ilgi daha çok artar\\n\" +   \"👎 Beğenmeme → ilgi azalır\\n\\n\" +    \"Haftalık bülten ve günlük haberler\\n\" +   \"tamamen senin ilgi profiline göre gelir!\\n\\n\" +    \"─────────────────\\n\" +   \"💡 ÖRNEK KULLANIM\\n\" +   \"─────────────────\\n\\n\" +    \"1. Günün Haberleri → listele\\n\" +   \"2. 2. haberi anlat → detay al\\n\" +   \"3. ❤️ gönder → beğeni bildir\\n\" +   \"4. yapay zeka haberleri → ara\\n\" +   \"5. İlgi Alanlarımı Seç → güncelle\\n\\n\" +    \"Her zaman buradayım! 🎯\" }}",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "🔙 Ana Menü",
+                    "additionalFields": {
+                      "callback_data": "menu_ana_menu"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -80,
+        96
+      ],
+      "id": "62444913-3f27-4217-ab32-dc5923e760e1",
+      "name": "Yardım Gönder",
+      "webhookId": "f21cfc82-0007-440a-a379-7a5f2dbed0b4",
+      "credentials": {
+        "telegramApi": {
+          "id": "mgOitC3rLxsdGGzS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://localhost:8000/mcp",
+        "tool": {
+          "__rl": true,
+          "value": "get_user_bulletin",
+          "mode": "list",
+          "cachedResultName": "get_user_bulletin"
+        },
+        "parameters": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "user_chat_id": "={{ $('Kullanıcı Verisini Çıkar').item.json.chat_id }}"
+          },
+          "matchingColumns": [
+            "user_chat_id"
+          ],
+          "schema": [
+            {
+              "id": "user_chat_id",
+              "displayName": "User Chat Id",
+              "defaultMatch": false,
+              "required": true,
+              "display": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClient",
+      "typeVersion": 1,
+      "position": [
+        656,
+        -1200
+      ],
+      "id": "544c48c4-6a6d-46f9-897e-e22c7ff03baa",
+      "name": "Bülten Haberlerini Getir",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Kullanıcı Verisini Çıkar').item.json.chat_id }}",
+        "text": "={{ $('Bülteni Özetle').item.json.output }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "Markdown"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1968,
+        -1664
+      ],
+      "id": "823e82fc-bef9-43bf-9097-de7ac6c3c9ef",
+      "name": "Günün Haberlerini Gönder",
+      "webhookId": "dec215bb-cafd-4bf5-a976-127389ba4834",
+      "credentials": {
+        "telegramApi": {
+          "id": "mgOitC3rLxsdGGzS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "deepseek-chat",
+          "mode": "id"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1568,
+        -1392
+      ],
+      "id": "2a86351f-e888-4895-a14c-db82527e2b30",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "6vUobGeKL3vrf656",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ JSON.stringify($('Bülten Haberlerini Getir').first().json.content[0].text) }}",
+        "options": {
+          "systemMessage": "Sen bir haber asistanısın. Sana JSON formatında bülten haber listesi gelecek.\nSadece gelen haberleri göster, ASLA ek haber veya uydurma kategori ekleme.\n\n## FORMAT KURALLARI\n- ###, **, * gibi markdown işaretleri KESİNLİKLE KULLANMA\n- Sadece emoji ve düz metin kullan\n- Her kategori grubundan sonra — koy\n\n## KATEGORİLER\nHaberin içeriğine göre aşağıdaki kategorilerden birini seç:\n\n🗳️ Siyaset\n🎭 Magazin\n💰 Ekonomi\n⚽ Spor\n🔬 Bilim\n💻 Teknoloji\n🏥 Sağlık\n🍽️ Yemek\n🚗 Otomotiv\n🎵 Müzik\n🎬 Dizi & Film\n🤖 AI\n🌍 Dünya\n🇹🇷 Türkiye / Gündem\n\n## ÇIKTI FORMATI\n\n🗞 Günün Öne Çıkan Haberleri\n📅 [Bugünün tarihi]\n\n[Kategori Emoji] [Kategori Adı]\n\n1️⃣ Başlık\n📰 Kaynak\n📝 2-3 cümle özet, samimi yorum ekle\n🔗 [Haberi Oku](URL)\n\n—\n\n[Kategori Emoji] [Kategori Adı]\n\n2️⃣ Başlık\n...\n\n## KATİ KURALLAR\n- Sadece sana verilen haberleri göster, BAŞKA HABERLERİ EKLEME\n- Bonus, ek haber, uydurma bölüm EKLEME\n- Markdown işareti kullanma (###, **, * yasak)\n- Tüm haberleri göster, limit koyma\n- URL'yi asla boş bırakma: [Haberi Oku](https://...)\n- Sona ekle: \"Beğendiğin haber olursa numarasını söyle, detaylı özet geçeyim. Ya da istediğin bir konu hakkında haber aratabilirim! 😊\""
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1600,
+        -1520
+      ],
+      "id": "a55f1a3c-2582-41e9-9583-afd11f65a6b8",
+      "name": "Bülteni Özetle",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://localhost:8000/mcp",
+        "tool": {
+          "__rl": true,
+          "value": "get_latest_news",
+          "mode": "list",
+          "cachedResultName": "get_latest_news"
+        },
+        "inputMode": "json",
+        "jsonInput": "{\n  \"category\": \"son_dakika\",\n  \"limit\": 5\n}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClient",
+      "typeVersion": 1,
+      "position": [
+        816,
+        -1008
+      ],
+      "id": "adb15066-c685-4668-a1c0-15b6c2374feb",
+      "name": "Son Dakika Haberleri Getir"
+    },
+    {
+      "parameters": {
+        "jsCode": "const content = $('Son Dakika Haberleri Getir').first().json.content[0].text;\nconst data = typeof content === 'string' ? JSON.parse(content) : content;\nconst news = data.data.news.slice(0, 5);\n\nlet summaryMap = {};\ntry {\n  const llmOutput = $('Son Dakika Haber Özetle').first().json.output;\n  const cleaned = llmOutput.replace(/```json|```/g, '').trim();\n  const parsed = JSON.parse(cleaned);\n  parsed.summaries.forEach(s => { summaryMap[s.id] = s.summary; });\n} catch(e) {}\n\nconst today = new Date().toLocaleDateString('tr-TR', { \n  day: 'numeric', month: 'long', year: 'numeric', weekday: 'long' \n});\n\nconst categoryEmojis = {\n  'siyaset': '🗳️', 'magazin': '🎭', 'ekonomi': '💰',\n  'spor': '⚽', 'bilim': '🔬', 'teknoloji': '💻',\n  'sağlık': '🏥', 'yemek': '🍽️', 'otomotiv': '🚗',\n  'müzik': '🎵', 'dizi_film': '🎬', 'ai': '🤖',\n  'son_dakika': '🔴', 'genel': '📰', 'dünya': '🌍',\n  'gündem': '🇹🇷', 'acil': '🚨'\n};\n\nconst emojis = ['1️⃣','2️⃣','3️⃣','4️⃣','5️⃣'];\n\nlet text = `🔴 Son Dakika\\n📅 ${today}\\n\\n`;\n\nconst newsForSave = [];\n\nnews.forEach((item, index) => {\n  const cat = (item.category || 'son_dakika').toLowerCase();\n  const catEmoji = categoryEmojis[cat] || '📰';\n  const catName = cat.charAt(0).toUpperCase() + cat.slice(1).replace('_', ' ');\n  const summary = summaryMap[item.id] || '';\n  \n  text += `${catEmoji} ${catName}\\n\\n`;\n  text += `${emojis[index]} ${item.title}\\n`;\n  if (summary) text += `📝 ${summary}\\n`;\n  text += `🔗 <a href=\"${item.url}\">Haberi Oku</a>\\n\\n—\\n\\n`;\n  \n  newsForSave.push({\n    id: item.id,\n    title: item.title,\n    category: cat,\n    url: item.url\n  });\n});\n\ntext += \"Detaylı okumak istediğin haberin numarasını söyle! 😊\";\n\nconst chat_id = $('Kullanıcı Verisini Çıkar').first().json.chat_id;\n\nreturn [{ json: { \n  text: text.trim(), \n  chat_id: chat_id,\n  news_for_save: JSON.stringify(newsForSave)\n}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1360,
+        -1104
+      ],
+      "id": "b0fc6c56-b8d1-4c37-b8ff-6fb616649c84",
+      "name": "Son Dakika Formatla"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Son Dakika Formatla').item.json.chat_id }}",
+        "text": "={{ $('Son Dakika Formatla').item.json.text }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1568,
+        -1104
+      ],
+      "id": "5b6fd30b-bb1c-4f0c-87ae-a2732d25aa27",
+      "name": "Son Dakika Gönder",
+      "webhookId": "60adebe5-6e10-49e1-9770-865616591142",
+      "credentials": {
+        "telegramApi": {
+          "id": "mgOitC3rLxsdGGzS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Aşağıdaki haberleri özetle:\n\n{{ JSON.stringify($('Son Dakika Haberleri Getir').first().json.content[0].text.data.news.slice(0,5)) }}\n\nHer haber için SADECE şu JSON formatında yanıt ver, başka hiçbir şey yazma:\n{\"summaries\": [{\"id\": 1403, \"summary\": \"2-3 cümle özet\"}, ...]}",
+        "options": {
+          "systemMessage": "Sen bir haber özetleme asistanısın. Sana JSON formatında haber listesi gelecek. Her haber için 2-3 cümlelik Türkçe özet yaz. Samimi ve akıcı bir dil kullan. SADECE JSON formatında yanıt ver, başka hiçbir şey yazma. \n\nÖNEMLİ TELEGRAM MARKDOWN KURALLARI:\n- ASLA * veya _ karakterlerini bold/italic için kullanma\n- ASLA [metin](url) formatı kullanma\n- Sadece düz metin + emoji + numara emojileri (1️⃣ 2️⃣) kullan\n- Linkleri \"🔗 URL\" şeklinde DİREKT URL olarak ver, parantez/köşeli parantez kullanma\n- Format şablonu:\n\n🔴 Son Dakika\n📅 [tarih]\n\n🏛️ Siyaset\n\n1️⃣ Başlık\n📝 Özet metni\n🔗 https://url-burada\n\n—"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1024,
+        -1008
+      ],
+      "id": "dfb057ef-5296-4f54-9948-1f7e42b37e34",
+      "name": "Son Dakika Haber Özetle",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "deepseek-chat",
+          "mode": "id"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1024,
+        -880
+      ],
+      "id": "c6cd9219-3da4-4e7e-8b49-8536095d56c0",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "6vUobGeKL3vrf656",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Kullanıcı Verisini Çıkar').first().json.chat_id }}",
+        "text": "=🌤️ Konumunuz alındı",
+        "replyMarkup": "replyKeyboardRemove",
+        "replyKeyboardRemove": {},
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -832,
+        720
+      ],
+      "id": "5804929b-07dd-41c5-b778-dbed1c1f90f5",
+      "name": "Konum Butonu",
+      "webhookId": "eb43cad4-6c15-4e1e-9258-3642b159f92a",
+      "credentials": {
+        "telegramApi": {
+          "id": "mgOitC3rLxsdGGzS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://finans.truncgil.com/v4/today.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -80,
+        -256
+      ],
+      "id": "be9f19ae-f0e6-4d20-baf1-eba3529ecf06",
+      "name": "Döviz Bilgisi Çek",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Kullanıcı Verisini Çıkar').first().json.chat_id }}",
+        "text": "={{\n  \"💱 Güncel Döviz Kurları\\n\" +\n  \"🗓️ \" + $('Döviz Bilgisi Çek').first().json.Update_Date.substring(0, 10) + \"\\n\\n\" +\n  \"💵 Döviz\\n\" +\n  \"🇺🇸 1 USD → Alış: \" + $('Döviz Bilgisi Çek').first().json.USD.Buying + \" TL | Satış: \" + $('Döviz Bilgisi Çek').first().json.USD.Selling + \" TL\\n\" +\n  \"🇪🇺 1 EUR → Alış: \" + $('Döviz Bilgisi Çek').first().json.EUR.Buying + \" TL | Satış: \" + $('Döviz Bilgisi Çek').first().json.EUR.Selling + \" TL\\n\" +\n  \"🇬🇧 1 GBP → Alış: \" + $('Döviz Bilgisi Çek').first().json.GBP.Buying + \" TL | Satış: \" + $('Döviz Bilgisi Çek').first().json.GBP.Selling + \" TL\\n\\n\" +\n  \"🪙 Kıymetli Madenler\\n\" +\n  \"🥇 Altın (gr) → Alış: \" + $('Döviz Bilgisi Çek').first().json.GRA.Buying + \" TL | Satış: \" + $('Döviz Bilgisi Çek').first().json.GRA.Selling + \" TL\\n\" +\n  \"🥈 Gümüş (gr) → Alış: \" + $('Döviz Bilgisi Çek').first().json.GUMUS.Buying + \" TL | Satış: \" + $('Döviz Bilgisi Çek').first().json.GUMUS.Selling + \" TL\"\n}}",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "🔙 Ana Menü",
+                    "additionalFields": {
+                      "callback_data": "menu_ana_menu"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        336,
+        -320
+      ],
+      "id": "7749ed31-6b17-4597-9eae-520d2ff6632a",
+      "name": "Döviz Gönder",
+      "webhookId": "10b58fe9-d0aa-4741-acd2-3e6f2a0efddf",
+      "credentials": {
+        "telegramApi": {
+          "id": "mgOitC3rLxsdGGzS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const chat_id = $('Kullanıcı Verisini Çıkar').first().json.chat_id;\n\n// Static data'ya kaydet — workflow'lar arası erişilebilir\nconst workflowStaticData = $getWorkflowStaticData('global');\nworkflowStaticData.last_chat_id = String(chat_id);\n\n$execution.customData.set('chat_id', String(chat_id));\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1776,
+        304
+      ],
+      "id": "03c3d721-45fb-4c52-9320-1c8ceaf3a099",
+      "name": "Chat ID Kaydet"
+    },
+    {
+      "parameters": {
+        "jsCode": "const chat_id = $('Kullanıcı Verisini Çıkar').first().json.chat_id;\nreturn [{\n  json: {\n    chat_id: chat_id,\n    text: '😔 Üzgünüm, şu an döviz bilgisine ulaşamıyorum.\\n\\nBu sırada sana başka konularda yardımcı olabilirim:\\n• 📰 Günün haberleri\\n• 🔴 Son dakika\\n• 🌤 Hava durumu\\n• 💬 Merak ettiğin herhangi bir konu\\n\\nNe istersin? 😊'\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        128,
+        -160
+      ],
+      "id": "9b2b540a-8315-4645-8d28-c3424869e031",
+      "name": "Hata Mesajı Hazırla-1"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Kullanıcı Verisini Çıkar').first().json.chat_id }}",
+        "text": "={{ $('Hata Mesajı Hazırla-1').first().json.text }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        336,
+        -160
+      ],
+      "id": "91d74a87-b41d-48bb-a836-83f0eef4750c",
+      "name": "Hata Mesajı Gönder-1",
+      "webhookId": "6aaadbda-3b88-4088-b510-ca50ffeae100",
+      "credentials": {
+        "telegramApi": {
+          "id": "mgOitC3rLxsdGGzS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.openweathermap.org/data/2.5/weather",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "lat",
+              "value": "={{ $('Telegram Trigger').first().json.message.location.latitude }}"
+            },
+            {
+              "name": "lon",
+              "value": "={{ $('Telegram Trigger').first().json.message.location.longitude }}"
+            },
+            {
+              "name": "appid",
+              "value": "adee3b7f66cb0aa36a6057c6a1743919"
+            },
+            {
+              "name": "units",
+              "value": "metric"
+            },
+            {
+              "name": "lang",
+              "value": "tr"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -1088,
+        768
+      ],
+      "id": "f4d92cc7-ae2f-4a2c-b78c-b571b7d1e00d",
+      "name": "Hava Durumu Çek",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const chat_id = $('Kullanıcı Verisini Çıkar').first().json.chat_id;\nreturn [{\n  json: {\n    chat_id: chat_id,\n    text: '😔 Üzgünüm, şu an hava durumu bilgisine ulaşamıyorum.\\n\\nBu sırada sana başka konularda yardımcı olabilirim:\\n• 📰 Günün haberleri\\n• 🔴 Son dakika\\n• 💱 Döviz kurları\\n• 💬 Merak ettiğin herhangi bir konu\\n\\nNe istersin? 😊'\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -784,
+        896
+      ],
+      "id": "32c707fb-dcf8-4678-bee1-3bc6b9054993",
+      "name": "Hata Mesajı Hazırla-2"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Hata Mesajı Hazırla-2').first().json.chat_id }}",
+        "text": "={{ $('Hata Mesajı Hazırla-2').first().json.text }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -576,
+        896
+      ],
+      "id": "c9f2ad7f-d120-4d9c-8cba-b9ffd8027673",
+      "name": "Hata Mesajı Gönder-2",
+      "webhookId": "6aaadbda-3b88-4088-b510-ca50ffeae100",
+      "credentials": {
+        "telegramApi": {
+          "id": "mgOitC3rLxsdGGzS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const chat_id = $('Kullanıcı Verisini Çıkar').first().json.chat_id;\nreturn [{\n  json: {\n    chat_id: chat_id,\n    text: '😔 Üzgünüm, şu an bülten haberlerine ulaşamıyorum.\\n\\nBu sırada sana başka konularda yardımcı olabilirim:\\n• 🔴 Son dakika haberleri\\n• 🌤 Hava durumu\\n• 💱 Döviz kurları\\n• 💬 Merak ettiğin herhangi bir konu\\n\\nNe istersin? 😊'\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        864,
+        -1168
+      ],
+      "id": "5c267b2b-7cc1-4715-bdd1-1c7b1dc19d73",
+      "name": "Hata Mesajı Hazırla-3"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Hata Mesajı Hazırla-3').first().json.chat_id }}",
+        "text": "={{ $('Hata Mesajı Hazırla-3').first().json.text }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1072,
+        -1168
+      ],
+      "id": "6b347818-ac38-4a06-90ef-ab247437ea58",
+      "name": "Hata Mesajı Gönder-3",
+      "webhookId": "e21f3d9f-9a31-42ed-bc5c-991c9d363b3c",
+      "credentials": {
+        "telegramApi": {
+          "id": "mgOitC3rLxsdGGzS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const chat_id = $('Kullanıcı Verisini Çıkar').first().json.chat_id;\nreturn [{\n  json: {\n    chat_id: chat_id,\n    text: '😔 Üzgünüm, şu an son dakika haberlerine ulaşamıyorum.\\n\\nBu sırada sana başka konularda yardımcı olabilirim:\\n• 📰 Günün haberleri\\n• 🌤 Hava durumu\\n• 💱 Döviz kurları\\n• 💬 Merak ettiğin herhangi bir konu\\n\\nNe istersin? 😊'\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        144,
+        -816
+      ],
+      "id": "3f9656b8-6c93-406a-99df-585b3451ed17",
+      "name": "Hata Mesajı Hazırla-4"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Hata Mesajı Hazırla-4').first().json.chat_id }}",
+        "text": "={{ $('Hata Mesajı Hazırla-4').first().json.text }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        352,
+        -816
+      ],
+      "id": "a0f6761b-f779-4ec4-b936-cb876160bc07",
+      "name": "Hata Mesajı Gönder-4",
+      "webhookId": "741f958c-6cd8-40ce-a4b3-7882e7a58e53",
+      "credentials": {
+        "telegramApi": {
+          "id": "mgOitC3rLxsdGGzS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const chat_id = $('Kullanıcı Verisini Çıkar').first().json.chat_id;\nreturn [{\n  json: {\n    chat_id: chat_id,\n    text: `🤔 Bir saniye düşünmem gerek...\n\nŞu an cevap üretirken küçük bir sorun yaşadım. Lütfen sorunu biraz farklı şekilde tekrar yazar mısın? Örneğin:\n\n- \"Günün haberleri\"\n- \"3. haberi özetle\"\n- \"Spor haberleri\"\n\nHemen hazır olacağım! 💪`\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        592,
+        704
+      ],
+      "id": "d41e3827-4249-47d6-b455-5ac9d2d853ce",
+      "name": "Hata Mesajı Hazırla-5"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Hata Mesajı Hazırla-5').first().json.chat_id }}",
+        "text": "={{ $('Hata Mesajı Hazırla-5').first().json.text }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        768,
+        704
+      ],
+      "id": "aca2289d-df89-4f2f-a6e0-88cf3c2a756c",
+      "name": "Hata Mesajı Gönder-5",
+      "webhookId": "edfc0dad-29eb-44f5-bb60-fa52afb2351f",
+      "credentials": {
+        "telegramApi": {
+          "id": "mgOitC3rLxsdGGzS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const chat_id = $('Kullanıcı Verisini Çıkar').first().json.chat_id;\nreturn [{\n  json: {\n    chat_id: chat_id,\n    text: '😔 Üzgünüm, şu an günlük bülteni özetleyemiyorum.\\n\\nBu sırada sana başka konularda yardımcı olabilirim:\\n• 🔴 Son dakika haberleri\\n• 💬 Merak ettiğin herhangi bir konu\\n• 🌤 Hava durumu\\n• 💱 Döviz kurları\\n\\nNe istersin? 😊'\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1968,
+        -1472
+      ],
+      "id": "9f1f0313-1453-496f-b9d7-c641dfb27897",
+      "name": "Hata Mesajı Hazırla-6"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Hata Mesajı Hazırla-6').first().json.chat_id }}",
+        "text": "={{ $('Hata Mesajı Hazırla-6').first().json.text }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2176,
+        -1472
+      ],
+      "id": "bc0d4712-223b-4d2b-af2b-c56549de6392",
+      "name": "Hata Mesajı Gönder-6",
+      "webhookId": "9e39a14f-a8a5-4e14-9224-8e214f0bd815",
+      "credentials": {
+        "telegramApi": {
+          "id": "mgOitC3rLxsdGGzS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const chat_id = $('Kullanıcı Verisini Çıkar').first().json.chat_id;\nreturn [{\n  json: {\n    chat_id: chat_id,\n    text: '😔 Üzgünüm, şu an son dakika haberlerini özetleyemiyorum.\\n\\nBu sırada sana başka konularda yardımcı olabilirim:\\n• 📰 Günün haberleri\\n• 💬 Merak ettiğin herhangi bir konu\\n• 🌤 Hava durumu\\n• 💱 Döviz kurları\\n\\nNe istersin? 😊'\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1376,
+        -912
+      ],
+      "id": "2d87a5bf-6092-4a89-8a18-8c7d44fd16c1",
+      "name": "Hata Mesajı Hazırla-7"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Hata Mesajı Hazırla-7').first().json.chat_id }}",
+        "text": "={{ $('Hata Mesajı Hazırla-7').first().json.text }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1584,
+        -912
+      ],
+      "id": "9e4ac22b-20e5-4deb-8fdc-136c76ac22c5",
+      "name": "Hata Mesajı Gönder-7",
+      "webhookId": "47d0f5cc-2960-444f-b092-3d85db51cfd1",
+      "credentials": {
+        "telegramApi": {
+          "id": "mgOitC3rLxsdGGzS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.telegram.org/bot8636519442:AAHio0muSwdngpDxOq3eA4KlVcjdKEvJcVw/sendMessage",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"chat_id\": \"{{ $('Kullanıcı Verisini Çıkar').first().json.chat_id }}\",\n  \"text\": \"Hava durumu getiriliyor...\",\n  \"reply_markup\": {\n    \"remove_keyboard\": true\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -656,
+        720
+      ],
+      "id": "c855ecfc-462b-45f8-b8f9-222e05a57c08",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "const content = $input.first().json.content?.[0]?.text;\nconst news = content?.data?.news || [];\n\nreturn [{\n  json: {\n    has_bulletin: news.length > 0,\n    news: news,\n    chat_id: $('Kullanıcı Verisini Çıkar').first().json.chat_id\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        864,
+        -1408
+      ],
+      "id": "c91a9ce9-adcc-45be-9bb8-bc63f19a2201",
+      "name": "Bülten Var mı Kontrol"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.has_bulletin }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "id": "37e53523-d87f-44c1-a87c-5f0a7a660d61"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Var"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "e0a1da2c-ed97-4a96-9258-b8c230750b89",
+                    "leftValue": "={{ $json.has_bulletin }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "false",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Yok"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1056,
+        -1408
+      ],
+      "id": "cbb89758-dfb9-4800-81c3-6be89596e1bc",
+      "name": "Bülten Var mı?"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://localhost:8000/mcp",
+        "tool": {
+          "__rl": true,
+          "value": "get_latest_news",
+          "mode": "list",
+          "cachedResultName": "get_latest_news"
+        },
+        "parameters": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "limit": 6
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "limit",
+              "displayName": "Limit",
+              "defaultMatch": false,
+              "required": false,
+              "display": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "category",
+              "displayName": "Category",
+              "defaultMatch": false,
+              "required": false,
+              "display": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClient",
+      "typeVersion": 1,
+      "position": [
+        1264,
+        -1312
+      ],
+      "id": "d798968a-3052-411b-91f7-e280f56b4aea",
+      "name": "Random Haber Getir"
+    },
+    {
+      "parameters": {
+        "jsCode": "const content = $input.first().json.content?.[0]?.text;\nconst news = content?.data?.news || [];\n\nlet mesaj = \"📰 *Bugün İçin Öne Çıkan Haberler*\\n\\n\";\n\nnews.forEach((haber, index) => {\n  mesaj += `*${index + 1}.* [${haber.title}](${haber.url})\\n`;\n  mesaj += `🏷️ ${haber.category}\\n\\n`;\n});\n\nmesaj += \"_Henüz kişiselleştirilmiş bülteniniz hazır değil. Yarın sabah size özel bülteniniz hazırlanacak!_\";\n\nreturn [{\n  json: {\n    chat_id: $('Kullanıcı Verisini Çıkar').first().json.chat_id,\n    mesaj: mesaj\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1520,
+        -1264
+      ],
+      "id": "b174e469-551e-47fb-b2a2-712d60b57002",
+      "name": "Random Haberleri Formatla"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $json.mesaj }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "Markdown"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1728,
+        -1264
+      ],
+      "id": "7210b639-b80b-4340-8d67-d34325a7e83b",
+      "name": "Random Haberleri Gönder",
+      "webhookId": "d5f3fa7c-8fe7-452e-8c35-a652c50992e4",
+      "credentials": {
+        "telegramApi": {
+          "id": "mgOitC3rLxsdGGzS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "=={{ $('Kullanıcı Verisini Çıkar').first().json.chat_id }}",
+        "contextWindowLength": 3
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        320,
+        912
+      ],
+      "id": "1c85d1d6-c54b-440f-995a-6da899874dc8",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://localhost:8000/mcp",
+        "tool": {
+          "__rl": true,
+          "value": "save_breaking_news",
+          "mode": "list",
+          "cachedResultName": "save_breaking_news"
+        },
+        "inputMode": "json",
+        "jsonInput": "={\n  \"user_chat_id\": \"{{ $('Son Dakika Formatla').item.json.chat_id }}\",\n  \"news_list\": {{ $('Son Dakika Formatla').item.json.news_for_save }}\n}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClient",
+      "typeVersion": 1,
+      "position": [
+        3160,
+        1140
+      ],
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "name": "Son Dakika Haberleri Kaydet"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Kullanıcı Verisini Çıkar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Kullanıcı Verisini Çıkar": {
+      "main": [
+        [
+          {
+            "node": "Kullanıcıyı Kaydet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Kullanıcıyı Kaydet": {
+      "main": [
+        [
+          {
+            "node": "Chat ID Kaydet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Callback mı?": {
+      "main": [
+        [
+          {
+            "node": "Menü Seçimi",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mesaj Türü",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Hava Durumu Çek",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mesaj Türü": {
+      "main": [
+        [
+          {
+            "node": "Açılış Menüsü Gönder",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Açılış Menüsü Gönder",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Yazıyor Efekti-2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Menü Seçimi": {
+      "main": [
+        [
+          {
+            "node": "Günün Haberleri Komutu",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Son Dakika Mesajı",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Tercih Butonlarını Gönder",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Kullanıcı Profilini Çek",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Döviz Bilgisi Çek",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Konum İste",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ayarlar Bilgisi Gönder",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Yardım Gönder",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Açılış Menüsü Gönder",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Callback Verisini Çıkar",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Callback Verisini Çıkar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Callback Verisini Çıkar": {
+      "main": [
+        [
+          {
+            "node": "Callback Yanıtla",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tamam mı?": {
+      "main": [
+        [
+          {
+            "node": "Tercihleri Kaydet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Buton Metnini Hazırla",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tercihleri Kaydet": {
+      "main": [
+        [
+          {
+            "node": "Hazırsınız Mesajı",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buton Metnini Hazırla": {
+      "main": [
+        [
+          {
+            "node": "Mesaj Güncelle",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Callback Yanıtla": {
+      "main": [
+        [
+          {
+            "node": "Tamam mı?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Kullanıcı Profilini Çek": {
+      "main": [
+        [
+          {
+            "node": "Profil Bilgisi Gönder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Son Dakika Mesajı": {
+      "main": [
+        [
+          {
+            "node": "RSS Çek",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Hata Mesajı Hazırla-4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Son Dakika Komutu": {
+      "main": [
+        [
+          {
+            "node": "Yazıyor Efekti-3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Günün Haberleri Komutu": {
+      "main": [
+        [
+          {
+            "node": "Yazıyor Efekti-1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Yazıyor Efekti-1": {
+      "main": [
+        [
+          {
+            "node": "Yanıt Oluşturma - 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Yazıyor Efekti-3": {
+      "main": [
+        [
+          {
+            "node": "Son Dakika Haberleri Getir",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Yazıyor Efekti-2": {
+      "main": [
+        [
+          {
+            "node": "Yanıt Oluşturma - 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Çek": {
+      "main": [
+        [
+          {
+            "node": "Son Dakika Komutu",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Yanıt Oluşturma - 1": {
+      "main": [
+        [
+          {
+            "node": "Bülten Haberlerini Getir",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Yanıt Oluşturma - 3": {
+      "main": [
+        [
+          {
+            "node": "Haber Asistanı AI Agent-1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Yeni Kullanıcı Mı?": {
+      "main": [
+        [
+          {
+            "node": "Callback mı?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Callback mı?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Client": {
+      "ai_tool": [
+        [
+          {
+            "node": "Haber Asistanı AI Agent-1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Haber Asistanı AI Agent-1": {
+      "main": [
+        [
+          {
+            "node": "Telegram Yanıt Gönder-",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Hata Mesajı Hazırla-5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Haber Asistanı AI Agent-1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Bülten Haberlerini Getir": {
+      "main": [
+        [
+          {
+            "node": "Bülten Var mı Kontrol",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Hata Mesajı Hazırla-3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Bülteni Özetle",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Bülteni Özetle": {
+      "main": [
+        [
+          {
+            "node": "Günün Haberlerini Gönder",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Hata Mesajı Hazırla-6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Son Dakika Haberleri Getir": {
+      "main": [
+        [
+          {
+            "node": "Son Dakika Haber Özetle",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Son Dakika Formatla": {
+      "main": [
+        [
+          {
+            "node": "Son Dakika Gönder",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Son Dakika Haberleri Kaydet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Son Dakika Haber Özetle": {
+      "main": [
+        [
+          {
+            "node": "Son Dakika Formatla",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Hata Mesajı Hazırla-7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Son Dakika Haber Özetle",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Konum Butonu": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Döviz Bilgisi Çek": {
+      "main": [
+        [
+          {
+            "node": "Döviz Gönder",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Hata Mesajı Hazırla-1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat ID Kaydet": {
+      "main": [
+        [
+          {
+            "node": "Yeni Kullanıcı Mı?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hata Mesajı Hazırla-1": {
+      "main": [
+        [
+          {
+            "node": "Hata Mesajı Gönder-1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hava Durumu Çek": {
+      "main": [
+        [
+          {
+            "node": "Konum Butonu",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Hata Mesajı Hazırla-2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hata Mesajı Hazırla-2": {
+      "main": [
+        [
+          {
+            "node": "Hata Mesajı Gönder-2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hata Mesajı Hazırla-3": {
+      "main": [
+        [
+          {
+            "node": "Hata Mesajı Gönder-3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hata Mesajı Hazırla-4": {
+      "main": [
+        [
+          {
+            "node": "Hata Mesajı Gönder-4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hata Mesajı Hazırla-5": {
+      "main": [
+        [
+          {
+            "node": "Hata Mesajı Gönder-5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hata Mesajı Hazırla-6": {
+      "main": [
+        [
+          {
+            "node": "Hata Mesajı Gönder-6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hata Mesajı Hazırla-7": {
+      "main": [
+        [
+          {
+            "node": "Hata Mesajı Gönder-7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Hava Durumu Gönder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Bülten Var mı Kontrol": {
+      "main": [
+        [
+          {
+            "node": "Bülten Var mı?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Bülten Var mı?": {
+      "main": [
+        [
+          {
+            "node": "Bülteni Özetle",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Random Haber Getir",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Random Haber Getir": {
+      "main": [
+        [
+          {
+            "node": "Random Haberleri Formatla",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Random Haberleri Formatla": {
+      "main": [
+        [
+          {
+            "node": "Random Haberleri Gönder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Son Dakika Gönder": {
+      "main": [
+        []
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Haber Asistanı AI Agent-1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "kjXPE88F4smImefn",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "a4c7a73b-fefe-4bff-b543-17681dc0c30d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "409666e2685c5dec0ce2ba55916475939b59aaceb7cfc34df0f332c03c131f5a"
+  },
+  "id": "P8ClGmLyL5spEYmp",
+  "tags": []
+}
